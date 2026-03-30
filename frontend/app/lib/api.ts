@@ -4,7 +4,7 @@ import type {
   StudentDues, MessPaymentSheet, SalaryRecord, HallOccupancy, AnnualStatement
 } from "./types";
 
-const BASE = "/api";
+const BASE = "http://localhost:8080/api";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -72,7 +72,7 @@ export const api = {
     create: (data: Omit<Complaint, "id">) => request<Complaint>("/complaints", { method: "POST", body: JSON.stringify(data) }),
     update: (id: number, data: Partial<Complaint>) => request<Complaint>(`/complaints/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: number) => request<string>(`/complaints/${id}`, { method: "DELETE" }),
-    postAtr: (id: number, atr: string) => request<string>(`/business/complaint/${id}/atr`, { method: "PUT", body: JSON.stringify({ atr }) }),
+    postAtr: (id: number, atr: string) => request<string>(`/business/complaints/${id}/atr?atr=${encodeURIComponent(atr)}`, { method: "PUT" }),
   },
 
   messManagers: {
@@ -129,24 +129,24 @@ export const api = {
     admitStudent: (data: {
       name: string; email: string; phone: string;
       registrationNumber: string; hallId: number; admissionDate: string;
-    }) => request<Student>("/business/admit-student", { method: "POST", body: JSON.stringify(data) }),
+    }) => request<Student>("/business/admit", { method: "POST", body: JSON.stringify(data) }),
 
     getStudentDues: (studentId: number, month: number, year: number) =>
       request<StudentDues>(`/business/student/${studentId}/dues?month=${month}&year=${year}`),
 
     getMessPayment: (hallId: number, month: number, year: number) =>
-      request<MessPaymentSheet>(`/business/hall/${hallId}/mess-payment?month=${month}&year=${year}`),
+      request<MessPaymentSheet>(`/business/mess-payment/hall/${hallId}?month=${month}&year=${year}`),
 
     getSalarySheet: (hallId: number, month: number, year: number) =>
-      request<SalaryRecord[]>(`/business/hall/${hallId}/salary-sheet?month=${month}&year=${year}`),
+      request<SalaryRecord[]>(`/business/salary-sheet/hall/${hallId}?month=${month}&year=${year}`),
 
     getHallOccupancy: (hallId: number) =>
-      request<HallOccupancy>(`/business/hall/${hallId}/occupancy`),
+      request<HallOccupancy>(`/business/occupancy/hall/${hallId}`),
 
     getOverallOccupancy: () =>
-      request<HallOccupancy[]>("/business/overall-occupancy"),
+      request<HallOccupancy[]>("/business/occupancy"),
 
     getAnnualStatement: (hallId: number, year: number) =>
-      request<AnnualStatement>(`/business/hall/${hallId}/annual-statement?year=${year}`),
+      request<AnnualStatement>(`/business/annual-statement/hall/${hallId}?year=${year}`),
   },
 };

@@ -142,7 +142,7 @@ export default function MessChargesPage() {
               <Select value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} required>
                 <option value="">Select student…</option>
                 {students.filter((s) => !studentsWithCharge.has(s.id)).map((s) => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.registrationNumber})</option>
+                  <option key={s.id} value={s.id}>{s.name}{s.registrationNumber ? ` (${s.registrationNumber})` : ""}</option>
                 ))}
               </Select>
             </FormField>

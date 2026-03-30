@@ -139,16 +139,12 @@ export interface StaffLeave {
 }
 
 export interface StudentDues {
-  id: number;
-  name: string;
-  hallId: number;
-  roomId: number;
-  messCharge: number;
+  studentId: number;
+  studentName: string;
+  messCharges: number;
   roomRent: number;
   amenityCharge: number;
   totalDue: number;
-  month: number;
-  year: number;
 }
 
 export interface MessPaymentSheet {
@@ -158,10 +154,10 @@ export interface MessPaymentSheet {
   messManagerName: string;
   month: number;
   year: number;
-  totalStudents: number;
-  monthlyCharge: number;
+  totalStudents?: number;
+  monthlyCharge?: number;
   totalAmount: number;
-  paymentDate: string;
+  paymentDate?: string;
 }
 
 export interface SalaryRecord {

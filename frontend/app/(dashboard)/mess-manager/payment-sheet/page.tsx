@@ -85,19 +85,23 @@ export default function MessPaymentSheetPage() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-wide">Payment Date</p>
-                  <p className="font-semibold text-slate-900 mt-1">{formatDate(sheet.paymentDate)}</p>
+                  <p className="font-semibold text-slate-900 mt-1">{sheet.paymentDate ? formatDate(sheet.paymentDate) : "—"}</p>
                 </div>
               </div>
 
               <div className="border-t border-slate-100 pt-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Total Students</span>
-                  <span className="font-semibold">{sheet.totalStudents}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Charge per Student</span>
-                  <span className="font-semibold">{formatCurrency(sheet.monthlyCharge)}</span>
-                </div>
+                {sheet.totalStudents !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Total Students</span>
+                    <span className="font-semibold">{sheet.totalStudents}</span>
+                  </div>
+                )}
+                {sheet.monthlyCharge !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Charge per Student</span>
+                    <span className="font-semibold">{formatCurrency(sheet.monthlyCharge)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold text-lg border-t border-slate-200 pt-3">
                   <span className="text-slate-900">Total Amount Due</span>
                   <span className="text-emerald-600">{formatCurrency(sheet.totalAmount)}</span>
@@ -109,9 +113,9 @@ export default function MessPaymentSheetPage() {
                 <div>
                   <p className="text-xs text-emerald-700 font-medium">Payable Amount</p>
                   <p className="text-2xl font-bold text-emerald-700">{formatCurrency(sheet.totalAmount)}</p>
-                  <p className="text-xs text-emerald-600 mt-0.5">
-                    Cheque to be issued to {sheet.messManagerName}
-                  </p>
+                <p className="text-xs text-emerald-600 mt-0.5">
+                  Cheque to be issued to {sheet.messManagerName} for {monthName(sheet.month)} {sheet.year}
+                </p>
                 </div>
               </div>
 

@@ -78,7 +78,7 @@ export default function LoginPage() {
             <span className="text-lg font-bold text-indigo-600">HMS</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900 mb-1">Sign in to HMS</h2>
+          <h2 className="text-2xl font-bold text-slate-200 mb-1">Sign in to HMS</h2>
           <p className="text-slate-500 mb-8">Enter your credentials to access your dashboard.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -72,7 +72,7 @@ export default function StudentDashboard() {
 
       {dues && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Mess Charges" value={formatCurrency(dues.messCharge)} color="amber" />
+          <StatCard label="Mess Charges" value={formatCurrency(dues.messCharges)} color="amber" />
           <StatCard label="Room Rent" value={formatCurrency(dues.roomRent)} color="blue" />
           <StatCard label="Amenity Charges" value={formatCurrency(dues.amenityCharge)} color="purple" />
           <StatCard label="Total Due" value={formatCurrency(dues.totalDue)} color="rose" />

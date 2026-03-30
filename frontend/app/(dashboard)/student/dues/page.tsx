@@ -69,8 +69,8 @@ export default function StudentDuesPage() {
                 </div>
                 <p className="font-medium text-slate-700">Mess Charges</p>
               </div>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(dues.messCharge)}</p>
-              <p className="text-xs text-slate-400 mt-1">For {monthName(dues.month)} {dues.year}</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(dues.messCharges)}</p>
+              <p className="text-xs text-slate-400 mt-1">For {monthName(month)} {year}</p>
             </Card>
 
             <Card className="p-5">
@@ -103,7 +103,7 @@ export default function StudentDuesPage() {
                   <CreditCard className="w-6 h-6 text-rose-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Total Due for {monthName(dues.month)} {dues.year}</p>
+                  <p className="text-sm text-slate-500">Total Due for {monthName(month)} {year}</p>
                   <p className="text-3xl font-bold text-slate-900">{formatCurrency(dues.totalDue)}</p>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function StudentDuesPage() {
 
             <div className="mt-5 border-t border-slate-100 pt-4 space-y-2">
               {[
-                ["Mess Charges", dues.messCharge],
+                ["Mess Charges", dues.messCharges],
                 ["Room Rent", dues.roomRent],
                 ["Amenity Charges", dues.amenityCharge],
               ].map(([label, val]) => (

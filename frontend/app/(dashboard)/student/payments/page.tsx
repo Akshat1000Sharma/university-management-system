@@ -132,7 +132,7 @@ export default function StudentPaymentsPage() {
               <div className="bg-slate-50 rounded-lg p-4 text-sm space-y-1.5">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Mess Charges</span>
-                  <span>{formatCurrency(dues.messCharge)}</span>
+                  <span>{formatCurrency(dues.messCharges)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Room Rent</span>
