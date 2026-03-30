@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../../../lib/api";
-import { formatDate } from "../../../lib/utils";
 import { PageHeader, Card, Table, Tr, Td, Spinner, ErrorMsg, EmptyState, Select, StatCard } from "../../../components/ui";
 import type { Student, Hall, Room } from "../../../lib/types";
 
@@ -57,25 +56,23 @@ export default function HmcStudentsPage() {
         {filtered.length === 0 ? (
           <EmptyState title="No students found" description="No students match the selected filter." />
         ) : (
-          <Table headers={["#", "Name", "Reg. No.", "Phone", "Hall", "Room", "Admitted"]}>
+          <Table headers={["Reg. No.","Name" , "Phone", "Hall", "Room"]}>
             {filtered.map((s, i) => {
               const hall = halls.find((h) => h.id === s.hallId);
               const room = rooms.find((r) => r.id === s.roomId);
               return (
                 <Tr key={s.id}>
-                  <Td>{i + 1}</Td>
+                  <Td className="font-mono text-sm text-slate-600">{s.id}</Td>
                   <Td className="font-medium">{s.name}</Td>
-                  <Td className="font-mono text-sm text-slate-600">{s.registrationNumber}</Td>
                   <Td className="text-slate-500 text-sm">{s.phone}</Td>
                   <Td className="text-sm">{hall?.name ?? `#${s.hallId}`}</Td>
                   <Td>
-                    {room ? (
+                    {room ? ( 
                       <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">Room {room.roomNumber}</span>
                     ) : (
                       <span className="text-xs text-slate-400">Not assigned</span>
                     )}
                   </Td>
-                  <Td className="text-slate-400 text-xs">{formatDate(s.admissionDate ?? "")}</Td>
                 </Tr>
               );
             })}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BarChart3, Building2, MessageSquare } from "lucide-react";
+import { BarChart3, BedDouble, Building2, Home, MessageSquare } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { api } from "../../lib/api";
 import { PageHeader, StatCard, Card, Spinner, ErrorMsg, OccupancyBar } from "../../components/ui";
@@ -49,8 +49,8 @@ export default function ControllingWardenDashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard label="Total Halls" value={halls.length} icon={<Building2 className="w-5 h-5" />} color="blue" />
-        <StatCard label="Total Rooms" value={totalRooms} color="indigo" />
-        <StatCard label="Occupied Rooms" value={totalOccupied} color="emerald" />
+        <StatCard label="Total Rooms" value={totalRooms} icon={<Home className="w-5 h-5" />} color="indigo" />
+        <StatCard label="Occupied Rooms" value={totalOccupied} icon={<BedDouble className="w-5 h-5" />} color="emerald" />
         <StatCard label="Pending Complaints" value={pending} icon={<MessageSquare className="w-5 h-5" />} color="amber" />
       </div>
 

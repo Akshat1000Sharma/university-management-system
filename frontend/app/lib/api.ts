@@ -85,6 +85,8 @@ export const api = {
   messCharges: {
     getAll: () => request<MessCharge[]>("/mess-charges"),
     getByStudent: (studentId: number) => request<MessCharge[]>(`/mess-charges/student/${studentId}`),
+    getByHallMonthYear: (hallId: number, month: number, year: number) =>
+      request<MessCharge[]>(`/mess-charges/hall/${hallId}?month=${month}&year=${year}`),
     create: (data: Omit<MessCharge, "id">) => request<MessCharge>("/mess-charges", { method: "POST", body: JSON.stringify(data) }),
     update: (id: number, data: Omit<MessCharge, "id">) => request<MessCharge>(`/mess-charges/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: number) => request<string>(`/mess-charges/${id}`, { method: "DELETE" }),

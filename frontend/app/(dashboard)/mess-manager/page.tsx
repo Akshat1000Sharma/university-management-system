@@ -15,17 +15,20 @@ export default function MessManagerDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [chargeCount, setChargeCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user?.hallId) { setLoading(false); return; }
     (async () => {
       try {
-        const [ps, stu] = await Promise.allSettled([
+        const [ps, stu, charges] = await Promise.allSettled([
           api.business.getMessPayment(user.hallId!, currentMonth(), currentYear()),
           api.students.getByHall(user.hallId!),
+          api.messCharges.getByHallMonthYear(user.hallId!, currentMonth(), currentYear()),
         ]);
         if (ps.status === "fulfilled") setPaymentSheet(ps.value);
         if (stu.status === "fulfilled") setStudents(stu.value);
+        if (charges.status === "fulfilled") setChargeCount(charges.value.length);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load");
       } finally {
@@ -35,6 +38,13 @@ export default function MessManagerDashboard() {
   }, [user]);
 
   if (loading) return <Spinner />;
+
+  const perStudentCharge =
+    paymentSheet?.monthlyCharge != null && Number.isFinite(paymentSheet.monthlyCharge)
+      ? paymentSheet.monthlyCharge
+      : chargeCount != null && chargeCount > 0 && paymentSheet
+        ? paymentSheet.totalAmount / chargeCount
+        : undefined;
 
   return (
     <div>
@@ -51,7 +61,7 @@ export default function MessManagerDashboard() {
         />
         <StatCard
           label="Per Student Charge"
-          value={paymentSheet ? formatCurrency(paymentSheet.monthlyCharge) : "—"}
+          value={perStudentCharge != null ? formatCurrency(perStudentCharge) : "—"}
           icon={<Utensils className="w-5 h-5" />}
           color="amber"
         />

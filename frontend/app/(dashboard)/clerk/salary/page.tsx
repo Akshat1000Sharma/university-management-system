@@ -34,7 +34,14 @@ export default function ClerkSalaryPage() {
 
   useEffect(() => { load(); }, [month, year, user]);
 
-  const total = records.reduce((s, r) => s + r.netSalary, 0);
+  // Backend only returns: dailyPay, totalDays, leaveDays, workingDays, salary.
+  // Derive base salary/net salary/deductions from those fields to avoid NaN.
+  const baseSalaryFor = (r: SalaryRecord) => r.dailyPay * r.totalDays;
+  const deductionFor = (r: SalaryRecord) => baseSalaryFor(r) - r.salary; // pay lost due to leaves
+  const netSalaryFor = (r: SalaryRecord) => r.salary;
+
+  const total = records.reduce((s, r) => s + netSalaryFor(r), 0);
+  const totalDeductions = records.reduce((s, r) => s + deductionFor(r), 0);
   const years = [currentYear() - 1, currentYear()];
 
   return (
@@ -74,7 +81,7 @@ export default function ClerkSalaryPage() {
             <div className="grid grid-cols-3 gap-4 mb-6">
               <StatCard label="Total Staff" value={records.length} color="blue" />
               <StatCard label="Total Salary Payable" value={formatCurrency(total)} color="emerald" />
-              <StatCard label="Total Deductions" value={formatCurrency(records.reduce((s, r) => s + r.deduction, 0))} color="rose" />
+              <StatCard label="Total Deductions" value={formatCurrency(totalDeductions)} color="rose" />
             </div>
           )}
 
@@ -94,10 +101,10 @@ export default function ClerkSalaryPage() {
                     <Td><span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{r.staffType}</span></Td>
                     <Td className="text-slate-600">₹{r.dailyPay}/day</Td>
                     <Td className="text-center">{r.workingDays}</Td>
-                    <Td className="text-center text-amber-600">{r.leavesTaken}</Td>
-                    <Td>{formatCurrency(r.baseSalary)}</Td>
-                    <Td className="text-red-500">-{formatCurrency(r.deduction)}</Td>
-                    <Td className="font-bold text-emerald-600">{formatCurrency(r.netSalary)}</Td>
+                    <Td className="text-center text-amber-600">{r.leaveDays}</Td>
+                    <Td>{formatCurrency(baseSalaryFor(r))}</Td>
+                    <Td className="text-red-500">-{formatCurrency(deductionFor(r))}</Td>
+                    <Td className="font-bold text-emerald-600">{formatCurrency(netSalaryFor(r))}</Td>
                   </Tr>
                 ))}
                 <tr className="bg-slate-50 border-t-2 border-slate-200">

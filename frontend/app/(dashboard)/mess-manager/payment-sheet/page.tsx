@@ -15,16 +15,22 @@ export default function MessPaymentSheetPage() {
   const [year, setYear] = useState(currentYear());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [chargeCount, setChargeCount] = useState<number | null>(null);
 
   const load = async () => {
     if (!user?.hallId) return;
     setLoading(true); setError("");
     try {
-      const data = await api.business.getMessPayment(user.hallId, month, year);
+      const [data, charges] = await Promise.all([
+        api.business.getMessPayment(user.hallId, month, year),
+        api.messCharges.getByHallMonthYear(user.hallId, month, year),
+      ]);
       setSheet(data);
+      setChargeCount(charges.length);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "No payment data for this period");
       setSheet(null);
+      setChargeCount(null);
     } finally {
       setLoading(false);
     }
@@ -33,6 +39,12 @@ export default function MessPaymentSheetPage() {
   useEffect(() => { load(); }, [month, year, user]);
 
   const years = [currentYear() - 1, currentYear()];
+  const chargePerStudent =
+    sheet?.monthlyCharge != null && Number.isFinite(sheet.monthlyCharge)
+      ? sheet.monthlyCharge
+      : sheet && chargeCount != null && chargeCount > 0
+        ? sheet.totalAmount / chargeCount
+        : undefined;
 
   return (
     <div>
@@ -96,10 +108,10 @@ export default function MessPaymentSheetPage() {
                     <span className="font-semibold">{sheet.totalStudents}</span>
                   </div>
                 )}
-                {sheet.monthlyCharge !== undefined && (
+                {chargePerStudent !== undefined && (
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Charge per Student</span>
-                    <span className="font-semibold">{formatCurrency(sheet.monthlyCharge)}</span>
+                    <span className="font-semibold">{formatCurrency(chargePerStudent)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm font-bold text-lg border-t border-slate-200 pt-3">

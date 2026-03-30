@@ -101,6 +101,8 @@ export default function HmcHallsPage() {
       ) : (
         <div className="space-y-3">
           {halls.map((hall) => {
+              const isNew = (hall as unknown as { isNew?: boolean; new?: boolean }).isNew ??
+                (hall as unknown as { new?: boolean }).new;
             const hallRooms = rooms.filter((r) => r.hallId === hall.id);
             const isExpanded = expandedHall === hall.id;
             return (
@@ -112,10 +114,10 @@ export default function HmcHallsPage() {
                   <div className="flex items-center gap-3">
                     {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
                     <div>
-                      <p className="font-semibold text-slate-900">{hall.name}</p>
-                      <p className="text-xs text-slate-400">
-                        {hall.isNew ? "New Hall" : "Old Hall"} · Amenity: {formatCurrency(hall.amenityCharge)} · {hallRooms.length} rooms
-                      </p>
+                    <p className="font-semibold text-slate-900">{hall.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {isNew ? "New Hall" : "Old Hall"} · Amenity: {formatCurrency(hall.amenityCharge)} · {hallRooms.length} rooms
+                    </p>
                     </div>
                   </div>
                   <Btn size="sm" variant="danger" onClick={() => handleDeleteHall(hall.id)}>
