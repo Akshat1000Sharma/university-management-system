@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { AuthUser, Role } from "./types";
+import { clearStoredToken } from "./api";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
+    clearStoredToken();
   };
 
   return (
@@ -77,34 +79,14 @@ interface DemoAccount {
   email: string;
   password: string;
   role: Role;
-  name: string;
-  hallId?: number;
-  hallName?: string;
-  studentId?: number;
-  registrationNumber?: string;
+  label: string;
 }
 
 export const DEMO_ACCOUNTS: DemoAccount[] = [
-  { email: "student@hms.edu", password: "student123", role: "STUDENT", name: "Demo Student", hallId: 1, hallName: "North Hall", studentId: 1 },
-  { email: "warden@hms.edu", password: "warden123", role: "WARDEN", name: "Dr. Kumar", hallId: 1, hallName: "North Hall" },
-  { email: "cwarden@hms.edu", password: "cwarden123", role: "CONTROLLING_WARDEN", name: "Chief Warden" },
-  { email: "mess@hms.edu", password: "mess123", role: "MESS_MANAGER", name: "Rajesh Kumar", hallId: 1, hallName: "North Hall" },
-  { email: "clerk@hms.edu", password: "clerk123", role: "CLERK", name: "Hall Clerk", hallId: 1, hallName: "North Hall" },
-  { email: "hmc@hms.edu", password: "hmc123", role: "HMC_CHAIRMAN", name: "HMC Chairman" },
+  { email: "student@hms.edu", password: "student123", role: "STUDENT", label: "Student" },
+  { email: "warden@hms.edu", password: "warden123", role: "WARDEN", label: "Hall Warden" },
+  { email: "cwarden@hms.edu", password: "cwarden123", role: "CONTROLLING_WARDEN", label: "Controlling Warden" },
+  { email: "mess@hms.edu", password: "mess123", role: "MESS_MANAGER", label: "Mess Manager" },
+  { email: "clerk@hms.edu", password: "clerk123", role: "CLERK", label: "Hall Clerk" },
+  { email: "hmc@hms.edu", password: "hmc123", role: "HMC_CHAIRMAN", label: "HMC Chairman" },
 ];
-
-export function validateLogin(email: string, password: string): AuthUser | null {
-  const account = DEMO_ACCOUNTS.find(
-    (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
-  );
-  if (!account) return null;
-  return {
-    role: account.role,
-    name: account.name,
-    email: account.email,
-    hallId: account.hallId,
-    hallName: account.hallName,
-    studentId: account.studentId,
-    registrationNumber: account.registrationNumber,
-  };
-}

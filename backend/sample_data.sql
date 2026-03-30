@@ -1,35 +1,30 @@
 -- HMS Database - Comprehensive Sample Data
--- Populates all 13 tables with rich data for every role/feature
+-- Populates all tables with rich data for every role/feature
+-- NOTE: Users and Permissions are seeded by the application on startup (BCrypt hashed passwords).
+--       Run this SQL only AFTER the application has started once (so all tables exist).
 
--- Clear existing data (reverse dependency order)
-DELETE FROM payments;
-DELETE FROM mess_charges;
-DELETE FROM staff_leaves;
-DELETE FROM complaints;
-DELETE FROM expenditures;
-DELETE FROM hall_grants;
-DELETE FROM grants;
-DELETE FROM mess_managers;
-DELETE FROM wardens;
-DELETE FROM staff;
-DELETE FROM students;
-DELETE FROM rooms;
-DELETE FROM halls;
+-- ============================================================
+-- TRUNCATE ALL TABLES (reverse dependency order)
+-- ============================================================
+SET FOREIGN_KEY_CHECKS = 0;
 
--- Reset auto-increment counters
-ALTER TABLE halls AUTO_INCREMENT = 1;
-ALTER TABLE rooms AUTO_INCREMENT = 1;
-ALTER TABLE students AUTO_INCREMENT = 1;
-ALTER TABLE wardens AUTO_INCREMENT = 1;
-ALTER TABLE mess_managers AUTO_INCREMENT = 1;
-ALTER TABLE staff AUTO_INCREMENT = 1;
-ALTER TABLE staff_leaves AUTO_INCREMENT = 1;
-ALTER TABLE mess_charges AUTO_INCREMENT = 1;
-ALTER TABLE complaints AUTO_INCREMENT = 1;
-ALTER TABLE grants AUTO_INCREMENT = 1;
-ALTER TABLE hall_grants AUTO_INCREMENT = 1;
-ALTER TABLE expenditures AUTO_INCREMENT = 1;
-ALTER TABLE payments AUTO_INCREMENT = 1;
+TRUNCATE TABLE payments;
+TRUNCATE TABLE mess_charges;
+TRUNCATE TABLE staff_leaves;
+TRUNCATE TABLE complaints;
+TRUNCATE TABLE expenditures;
+TRUNCATE TABLE hall_grants;
+TRUNCATE TABLE grants;
+TRUNCATE TABLE mess_managers;
+TRUNCATE TABLE wardens;
+TRUNCATE TABLE staff;
+TRUNCATE TABLE students;
+TRUNCATE TABLE rooms;
+TRUNCATE TABLE halls;
+TRUNCATE TABLE permissions;
+TRUNCATE TABLE users;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
 -- 1. HALLS (4 halls)
@@ -43,7 +38,7 @@ INSERT INTO halls (name, is_new, amenity_charge) VALUES
 -- ============================================================
 -- 2. ROOMS (8 rooms per hall = 32 rooms total)
 -- ============================================================
--- North Hall (hall_id=1) - 8 rooms
+-- North Hall (hall_id=1)
 INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('N101', 'SINGLE', 15000, 1, true),
 ('N102', 'SINGLE', 15000, 1, true),
@@ -54,7 +49,7 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('N107', 'SINGLE', 15000, 1, false),
 ('N108', 'TWIN_SHARING', 12000, 1, false);
 
--- South Hall (hall_id=2) - 8 rooms
+-- South Hall (hall_id=2)
 INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('S101', 'SINGLE', 14000, 2, true),
 ('S102', 'SINGLE', 14000, 2, true),
@@ -65,7 +60,7 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('S107', 'SINGLE', 14000, 2, false),
 ('S108', 'TWIN_SHARING', 11000, 2, false);
 
--- East Hall (hall_id=3) - 8 rooms
+-- East Hall (hall_id=3)
 INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('E101', 'SINGLE', 16000, 3, true),
 ('E102', 'SINGLE', 16000, 3, true),
@@ -76,7 +71,7 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('E107', 'SINGLE', 16000, 3, false),
 ('E108', 'TWIN_SHARING', 13000, 3, false);
 
--- West Hall (hall_id=4) - 8 rooms
+-- West Hall (hall_id=4)
 INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('W101', 'SINGLE', 13000, 4, true),
 ('W102', 'SINGLE', 13000, 4, true),
@@ -88,10 +83,9 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('W108', 'TWIN_SHARING', 10000, 4, false);
 
 -- ============================================================
--- 3. STUDENTS (5-6 per hall = 20 total)
---    Demo student account maps to studentId=1, hallId=1
+-- 3. STUDENTS (5 per hall = 20 total)
 -- ============================================================
--- North Hall students (hall_id=1, room_ids 1-5)
+-- North Hall (hall_id=1, room_ids 1-5)
 INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Raj Kumar', '123 Main St, Delhi', '9876543210', 'raj.jpg', 1, 1),
 ('Vikram Gupta', '654 Maple Dr, Chennai', '9876543214', 'vikram.jpg', 1, 2),
@@ -99,7 +93,7 @@ INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Arjun Reddy', '78 MG Road, Hyderabad', '9876543221', 'arjun.jpg', 1, 4),
 ('Karan Malhotra', '12 Civil Lines, Jaipur', '9876543222', 'karan.jpg', 1, 5);
 
--- South Hall students (hall_id=2, room_ids 9-13)
+-- South Hall (hall_id=2, room_ids 9-13)
 INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Priya Singh', '456 Oak Ave, Mumbai', '9876543211', 'priya.jpg', 2, 9),
 ('Amit Patel', '789 Pine Rd, Bangalore', '9876543212', 'amit.jpg', 2, 10),
@@ -107,7 +101,7 @@ INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Rahul Verma', '67 Gandhi Nagar, Patna', '9876543224', 'rahul.jpg', 2, 12),
 ('Meera Krishnan', '89 Anna Salai, Chennai', '9876543225', 'meera.jpg', 2, 13);
 
--- East Hall students (hall_id=3, room_ids 17-20)
+-- East Hall (hall_id=3, room_ids 17-20)
 INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Anjali Rao', '987 Cedar Ln, Pune', '9876543215', 'anjali.jpg', 3, 17),
 ('Rohit Sharma', '23 Residency Rd, Bangalore', '9876543226', 'rohit.jpg', 3, 18),
@@ -115,7 +109,7 @@ INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Suresh Iyer', '78 Connaught Place, Delhi', '9876543228', 'suresh.jpg', 3, 20),
 ('Pooja Deshmukh', '90 FC Road, Pune', '9876543229', 'pooja.jpg', 3, NULL);
 
--- West Hall students (hall_id=4, room_ids 25-28)
+-- West Hall (hall_id=4, room_ids 25-28)
 INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Neha Sharma', '321 Elm St, Hyderabad', '9876543213', 'neha.jpg', 4, 25),
 ('Aditya Joshi', '45 Linking Rd, Mumbai', '9876543230', 'aditya.jpg', 4, 26),
@@ -125,7 +119,6 @@ INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 
 -- ============================================================
 -- 4. WARDENS (4 wardens, one per hall)
---    Demo warden account = hallId=1 (Dr. Kumar)
 -- ============================================================
 INSERT INTO wardens (name, contact, hall_id, is_controlling) VALUES
 ('Dr. Kumar', '9898765432', 1, true),
@@ -135,7 +128,6 @@ INSERT INTO wardens (name, contact, hall_id, is_controlling) VALUES
 
 -- ============================================================
 -- 5. MESS MANAGERS (one per hall)
---    Demo mess manager = hallId=1 (Rajesh Kumar)
 -- ============================================================
 INSERT INTO mess_managers (name, hall_id) VALUES
 ('Rajesh Kumar', 1),
@@ -144,9 +136,9 @@ INSERT INTO mess_managers (name, hall_id) VALUES
 ('Dinesh Gupta', 4);
 
 -- ============================================================
--- 6. STAFF (4-5 per hall, various types = 18 total)
+-- 6. STAFF (4-5 per hall = 18 total)
 -- ============================================================
--- North Hall staff (hall_id=1)
+-- North Hall (hall_id=1)
 INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Ramesh Kumar', 'ATTENDANT', 500, 1),
 ('Pradeep Singh', 'ATTENDANT', 500, 1),
@@ -154,21 +146,21 @@ INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Sunil Yadav', 'ATTENDANT', 450, 1),
 ('Gopal Das', 'GARDENER', 400, 1);
 
--- South Hall staff (hall_id=2)
+-- South Hall (hall_id=2)
 INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Sanjay Verma', 'ATTENDANT', 500, 2),
 ('Rajiv Gupta', 'ATTENDANT', 500, 2),
 ('Vikram Joshi', 'GARDENER', 400, 2),
 ('Manoj Tiwari', 'ATTENDANT', 450, 2);
 
--- East Hall staff (hall_id=3)
+-- East Hall (hall_id=3)
 INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Arun Kumar', 'ATTENDANT', 500, 3),
 ('Ashok Singh', 'GARDENER', 400, 3),
 ('Ravi Shankar', 'ATTENDANT', 480, 3),
 ('Deepak Mishra', 'GARDENER', 420, 3);
 
--- West Hall staff (hall_id=4)
+-- West Hall (hall_id=4)
 INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Sunil Reddy', 'ATTENDANT', 500, 4),
 ('Naveen Kumar', 'GARDENER', 400, 4),
@@ -177,40 +169,33 @@ INSERT INTO staff (name, staff_type, daily_pay, hall_id) VALUES
 ('Balu Prasad', 'GARDENER', 410, 4);
 
 -- ============================================================
--- 7. STAFF LEAVES (spread across Jan-Mar 2026 for salary calc)
+-- 7. STAFF LEAVES (spread across Jan-Mar 2026)
 -- ============================================================
--- January 2026 leaves
+-- January 2026
 INSERT INTO staff_leaves (staff_id, leave_date) VALUES
-(1, '2026-01-05'),
-(1, '2026-01-12'),
+(1, '2026-01-05'), (1, '2026-01-12'),
 (2, '2026-01-08'),
-(3, '2026-01-15'),
-(3, '2026-01-22'),
+(3, '2026-01-15'), (3, '2026-01-22'),
 (4, '2026-01-10'),
-(6, '2026-01-07'),
-(6, '2026-01-14'),
+(6, '2026-01-07'), (6, '2026-01-14'),
 (7, '2026-01-20'),
 (10, '2026-01-18'),
 (11, '2026-01-25'),
-(14, '2026-01-06'),
-(14, '2026-01-13'),
+(14, '2026-01-06'), (14, '2026-01-13'),
 (15, '2026-01-28');
 
--- February 2026 leaves
+-- February 2026
 INSERT INTO staff_leaves (staff_id, leave_date) VALUES
-(1, '2026-02-03'),
-(1, '2026-02-17'),
+(1, '2026-02-03'), (1, '2026-02-17'),
 (2, '2026-02-10'),
 (3, '2026-02-05'),
-(4, '2026-02-12'),
-(4, '2026-02-24'),
+(4, '2026-02-12'), (4, '2026-02-24'),
 (5, '2026-02-09'),
 (6, '2026-02-16'),
 (7, '2026-02-23'),
 (8, '2026-02-11'),
 (9, '2026-02-18'),
-(10, '2026-02-04'),
-(10, '2026-02-25'),
+(10, '2026-02-04'), (10, '2026-02-25'),
 (11, '2026-02-13'),
 (12, '2026-02-20'),
 (13, '2026-02-06'),
@@ -220,41 +205,25 @@ INSERT INTO staff_leaves (staff_id, leave_date) VALUES
 (17, '2026-02-19'),
 (18, '2026-02-26');
 
--- March 2026 leaves
+-- March 2026
 INSERT INTO staff_leaves (staff_id, leave_date) VALUES
-(1, '2026-03-01'),
-(1, '2026-03-05'),
-(1, '2026-03-19'),
-(2, '2026-03-10'),
-(2, '2026-03-24'),
+(1, '2026-03-01'), (1, '2026-03-05'), (1, '2026-03-19'),
+(2, '2026-03-10'), (2, '2026-03-24'),
 (3, '2026-03-15'),
-(4, '2026-03-20'),
-(4, '2026-03-27'),
-(5, '2026-03-11'),
-(5, '2026-03-22'),
-(6, '2026-03-08'),
-(6, '2026-03-18'),
-(7, '2026-03-12'),
-(7, '2026-03-26'),
-(8, '2026-03-04'),
-(8, '2026-03-17'),
+(4, '2026-03-20'), (4, '2026-03-27'),
+(5, '2026-03-11'), (5, '2026-03-22'),
+(6, '2026-03-08'), (6, '2026-03-18'),
+(7, '2026-03-12'), (7, '2026-03-26'),
+(8, '2026-03-04'), (8, '2026-03-17'),
 (9, '2026-03-09'),
-(10, '2026-03-03'),
-(10, '2026-03-13'),
-(10, '2026-03-25'),
+(10, '2026-03-03'), (10, '2026-03-13'), (10, '2026-03-25'),
 (11, '2026-03-07'),
-(12, '2026-03-16'),
-(12, '2026-03-28'),
-(13, '2026-03-06'),
-(13, '2026-03-21'),
-(14, '2026-03-02'),
-(14, '2026-03-14'),
-(15, '2026-03-10'),
-(15, '2026-03-23'),
-(16, '2026-03-05'),
-(16, '2026-03-19'),
-(17, '2026-03-11'),
-(17, '2026-03-25'),
+(12, '2026-03-16'), (12, '2026-03-28'),
+(13, '2026-03-06'), (13, '2026-03-21'),
+(14, '2026-03-02'), (14, '2026-03-14'),
+(15, '2026-03-10'), (15, '2026-03-23'),
+(16, '2026-03-05'), (16, '2026-03-19'),
+(17, '2026-03-11'), (17, '2026-03-25'),
 (18, '2026-03-18');
 
 -- ============================================================
@@ -262,77 +231,41 @@ INSERT INTO staff_leaves (staff_id, leave_date) VALUES
 -- ============================================================
 -- January 2026
 INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
-(1, 1, 1, 2026, 3000),
-(2, 1, 1, 2026, 3000),
-(3, 1, 1, 2026, 3000),
-(4, 1, 1, 2026, 3000),
-(5, 1, 1, 2026, 3000),
-(6, 2, 1, 2026, 2800),
-(7, 2, 1, 2026, 2800),
-(8, 2, 1, 2026, 2800),
-(9, 2, 1, 2026, 2800),
-(10, 2, 1, 2026, 2800),
-(11, 3, 1, 2026, 3200),
-(12, 3, 1, 2026, 3200),
-(13, 3, 1, 2026, 3200),
-(14, 3, 1, 2026, 3200),
-(15, 3, 1, 2026, 3200),
-(16, 4, 1, 2026, 2500),
-(17, 4, 1, 2026, 2500),
-(18, 4, 1, 2026, 2500),
-(19, 4, 1, 2026, 2500),
-(20, 4, 1, 2026, 2500);
+(1, 1, 1, 2026, 3000), (2, 1, 1, 2026, 3000), (3, 1, 1, 2026, 3000),
+(4, 1, 1, 2026, 3000), (5, 1, 1, 2026, 3000),
+(6, 2, 1, 2026, 2800), (7, 2, 1, 2026, 2800), (8, 2, 1, 2026, 2800),
+(9, 2, 1, 2026, 2800), (10, 2, 1, 2026, 2800),
+(11, 3, 1, 2026, 3200), (12, 3, 1, 2026, 3200), (13, 3, 1, 2026, 3200),
+(14, 3, 1, 2026, 3200), (15, 3, 1, 2026, 3200),
+(16, 4, 1, 2026, 2500), (17, 4, 1, 2026, 2500), (18, 4, 1, 2026, 2500),
+(19, 4, 1, 2026, 2500), (20, 4, 1, 2026, 2500);
 
 -- February 2026
 INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
-(1, 1, 2, 2026, 3000),
-(2, 1, 2, 2026, 3000),
-(3, 1, 2, 2026, 3000),
-(4, 1, 2, 2026, 3000),
-(5, 1, 2, 2026, 3000),
-(6, 2, 2, 2026, 2800),
-(7, 2, 2, 2026, 2800),
-(8, 2, 2, 2026, 2800),
-(9, 2, 2, 2026, 2800),
-(10, 2, 2, 2026, 2800),
-(11, 3, 2, 2026, 3200),
-(12, 3, 2, 2026, 3200),
-(13, 3, 2, 2026, 3200),
-(14, 3, 2, 2026, 3200),
-(15, 3, 2, 2026, 3200),
-(16, 4, 2, 2026, 2500),
-(17, 4, 2, 2026, 2500),
-(18, 4, 2, 2026, 2500),
-(19, 4, 2, 2026, 2500),
-(20, 4, 2, 2026, 2500);
+(1, 1, 2, 2026, 3000), (2, 1, 2, 2026, 3000), (3, 1, 2, 2026, 3000),
+(4, 1, 2, 2026, 3000), (5, 1, 2, 2026, 3000),
+(6, 2, 2, 2026, 2800), (7, 2, 2, 2026, 2800), (8, 2, 2, 2026, 2800),
+(9, 2, 2, 2026, 2800), (10, 2, 2, 2026, 2800),
+(11, 3, 2, 2026, 3200), (12, 3, 2, 2026, 3200), (13, 3, 2, 2026, 3200),
+(14, 3, 2, 2026, 3200), (15, 3, 2, 2026, 3200),
+(16, 4, 2, 2026, 2500), (17, 4, 2, 2026, 2500), (18, 4, 2, 2026, 2500),
+(19, 4, 2, 2026, 2500), (20, 4, 2, 2026, 2500);
 
 -- March 2026
 INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
-(1, 1, 3, 2026, 3000),
-(2, 1, 3, 2026, 3000),
-(3, 1, 3, 2026, 3000),
-(4, 1, 3, 2026, 3000),
-(5, 1, 3, 2026, 3000),
-(6, 2, 3, 2026, 2800),
-(7, 2, 3, 2026, 2800),
-(8, 2, 3, 2026, 2800),
-(9, 2, 3, 2026, 2800),
-(10, 2, 3, 2026, 2800),
-(11, 3, 3, 2026, 3200),
-(12, 3, 3, 2026, 3200),
-(13, 3, 3, 2026, 3200),
-(14, 3, 3, 2026, 3200),
-(15, 3, 3, 2026, 3200),
-(16, 4, 3, 2026, 2500),
-(17, 4, 3, 2026, 2500),
-(18, 4, 3, 2026, 2500),
-(19, 4, 3, 2026, 2500),
-(20, 4, 3, 2026, 2500);
+(1, 1, 3, 2026, 3000), (2, 1, 3, 2026, 3000), (3, 1, 3, 2026, 3000),
+(4, 1, 3, 2026, 3000), (5, 1, 3, 2026, 3000),
+(6, 2, 3, 2026, 2800), (7, 2, 3, 2026, 2800), (8, 2, 3, 2026, 2800),
+(9, 2, 3, 2026, 2800), (10, 2, 3, 2026, 2800),
+(11, 3, 3, 2026, 3200), (12, 3, 3, 2026, 3200), (13, 3, 3, 2026, 3200),
+(14, 3, 3, 2026, 3200), (15, 3, 3, 2026, 3200),
+(16, 4, 3, 2026, 2500), (17, 4, 3, 2026, 2500), (18, 4, 3, 2026, 2500),
+(19, 4, 3, 2026, 2500), (20, 4, 3, 2026, 2500);
 
 -- ============================================================
 -- 9. COMPLAINTS (mix of types, statuses, across all halls)
 -- ============================================================
--- North Hall complaints
+-- North Hall
 INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VALUES
 (1, 1, 'FUSED_LIGHT', 'Tube light in room N101 is not working since 2 days', 'RESOLVED', 'Replaced tube light on 2026-03-21'),
 (1, 1, 'WATER_TAP', 'Bathroom tap is dripping constantly', 'IN_PROGRESS', 'Plumber scheduled for tomorrow'),
@@ -342,7 +275,7 @@ INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VAL
 (5, 1, 'WATER_FILTER', 'Water filter on 1st floor needs servicing', 'RESOLVED', 'Filter cartridge replaced on 2026-03-18'),
 (2, 1, 'FUSED_LIGHT', 'Emergency light in corridor not functioning', 'PENDING', NULL);
 
--- South Hall complaints
+-- South Hall
 INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VALUES
 (6, 2, 'WATER_TAP', 'Hot water tap in bathroom leaking heavily', 'RESOLVED', 'Tap replaced on 2026-03-15'),
 (7, 2, 'ROOM_REPAIR', 'Wall paint peeling off near window', 'IN_PROGRESS', 'Painter will visit this week'),
@@ -350,14 +283,14 @@ INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VAL
 (9, 2, 'WATER_FILTER', 'Water tastes metallic from the filter', 'IN_PROGRESS', 'Water sample sent for testing'),
 (10, 2, 'ATTENDANT_BEHAVIOR', 'Washroom not cleaned for 3 days', 'RESOLVED', 'Stern warning given, cleaning resumed');
 
--- East Hall complaints
+-- East Hall
 INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VALUES
 (11, 3, 'ROOM_REPAIR', 'Ceiling fan making loud noise', 'PENDING', NULL),
 (12, 3, 'WATER_TAP', 'Basin tap handle broken', 'RESOLVED', 'New tap installed on 2026-02-28'),
 (13, 3, 'MESS_STAFF_BEHAVIOR', 'Mess staff serving stale food', 'IN_PROGRESS', 'Mess committee meeting scheduled'),
 (14, 3, 'FUSED_LIGHT', 'Study room lights flickering', 'PENDING', NULL);
 
--- West Hall complaints
+-- West Hall
 INSERT INTO complaints (student_id, hall_id, type, description, status, atr) VALUES
 (16, 4, 'WATER_FILTER', 'Water filter replacement overdue by 2 months', 'RESOLVED', 'Replaced filter on 2026-03-20'),
 (17, 4, 'ROOM_REPAIR', 'Door lock is jammed and cannot be locked', 'IN_PROGRESS', 'Locksmith called'),
@@ -374,33 +307,27 @@ INSERT INTO grants (year, total_amount) VALUES
 (2026, 500000);
 
 -- ============================================================
--- 11. HALL GRANTS (allocations for each grant-year to halls)
+-- 11. HALL GRANTS
 -- ============================================================
--- 2024 grants (grant_id=1)
+-- 2024 (grant_id=1)
 INSERT INTO hall_grants (grant_id, hall_id, allocated_amount, spent_amount) VALUES
-(1, 1, 120000, 115000),
-(1, 2, 110000, 105000),
-(1, 3, 100000, 92000),
-(1, 4, 70000, 68000);
+(1, 1, 120000, 115000), (1, 2, 110000, 105000),
+(1, 3, 100000, 92000),  (1, 4, 70000, 68000);
 
--- 2025 grants (grant_id=2)
+-- 2025 (grant_id=2)
 INSERT INTO hall_grants (grant_id, hall_id, allocated_amount, spent_amount) VALUES
-(2, 1, 140000, 125000),
-(2, 2, 130000, 115000),
-(2, 3, 110000, 98000),
-(2, 4, 70000, 62000);
+(2, 1, 140000, 125000), (2, 2, 130000, 115000),
+(2, 3, 110000, 98000),  (2, 4, 70000, 62000);
 
--- 2026 grants (grant_id=3)
+-- 2026 (grant_id=3)
 INSERT INTO hall_grants (grant_id, hall_id, allocated_amount, spent_amount) VALUES
-(3, 1, 150000, 95000),
-(3, 2, 140000, 88000),
-(3, 3, 130000, 75000),
-(3, 4, 80000, 42000);
+(3, 1, 150000, 95000),  (3, 2, 140000, 88000),
+(3, 3, 130000, 75000),  (3, 4, 80000, 42000);
 
 -- ============================================================
--- 12. EXPENDITURES (multiple categories, multiple months, all halls)
+-- 12. EXPENDITURES
 -- ============================================================
--- North Hall expenditures
+-- North Hall
 INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (1, 'Bathroom tiles replacement - ground floor', 25000, '2026-01-10', 'REPAIR'),
 (1, 'Newspapers - Jan subscription', 2000, '2026-01-05', 'NEWSPAPER'),
@@ -415,7 +342,7 @@ INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (1, 'Garden landscaping', 5000, '2026-03-20', 'OTHER'),
 (1, 'Emergency electrical repair', 6500, '2026-03-25', 'REPAIR');
 
--- South Hall expenditures
+-- South Hall
 INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (2, 'Electrical wiring overhaul - Block A', 18000, '2026-01-12', 'REPAIR'),
 (2, 'Newspapers - Jan subscription', 1800, '2026-01-04', 'NEWSPAPER'),
@@ -427,7 +354,7 @@ INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (2, 'Newspapers - Mar subscription', 1800, '2026-03-03', 'NEWSPAPER'),
 (2, 'Pest control treatment', 5000, '2026-03-22', 'OTHER');
 
--- East Hall expenditures
+-- East Hall
 INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (3, 'Wall painting - all rooms', 35000, '2026-01-20', 'REPAIR'),
 (3, 'Newspapers - Jan subscription', 2200, '2026-01-06', 'NEWSPAPER'),
@@ -440,7 +367,7 @@ INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (3, 'Magazine subscriptions - Mar', 1800, '2026-03-06', 'MAGAZINE'),
 (3, 'Fire extinguisher refills', 3000, '2026-03-18', 'OTHER');
 
--- West Hall expenditures
+-- West Hall
 INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (4, 'Garden maintenance and planting', 5000, '2026-01-08', 'REPAIR'),
 (4, 'Newspapers - Jan subscription', 1500, '2026-01-03', 'NEWSPAPER'),
@@ -453,68 +380,81 @@ INSERT INTO expenditures (hall_id, description, amount, date, category) VALUES
 (4, 'Electrical panel upgrade', 9000, '2026-03-20', 'REPAIR');
 
 -- ============================================================
--- 13. PAYMENTS (multiple months for most students)
+-- 13. PAYMENTS
 -- ============================================================
--- January 2026 payments
+-- January 2026
 INSERT INTO payments (student_id, amount, date) VALUES
-(1, 23000, '2026-01-10'),
-(2, 23000, '2026-01-12'),
-(3, 20000, '2026-01-11'),
-(4, 20000, '2026-01-14'),
+(1, 23000, '2026-01-10'), (2, 23000, '2026-01-12'),
+(3, 20000, '2026-01-11'), (4, 20000, '2026-01-14'),
 (5, 23000, '2026-01-13'),
-(6, 20800, '2026-01-10'),
-(7, 20800, '2026-01-11'),
-(8, 17800, '2026-01-13'),
-(9, 17800, '2026-01-15'),
+(6, 20800, '2026-01-10'), (7, 20800, '2026-01-11'),
+(8, 17800, '2026-01-13'), (9, 17800, '2026-01-15'),
 (10, 17800, '2026-01-12'),
-(11, 25200, '2026-01-10'),
-(12, 25200, '2026-01-14'),
-(13, 22200, '2026-01-12'),
-(14, 22200, '2026-01-16'),
-(16, 19000, '2026-01-10'),
-(17, 19000, '2026-01-11'),
-(18, 16000, '2026-01-14'),
-(19, 16000, '2026-01-13');
+(11, 25200, '2026-01-10'), (12, 25200, '2026-01-14'),
+(13, 22200, '2026-01-12'), (14, 22200, '2026-01-16'),
+(16, 19000, '2026-01-10'), (17, 19000, '2026-01-11'),
+(18, 16000, '2026-01-14'), (19, 16000, '2026-01-13');
 
--- February 2026 payments
+-- February 2026
 INSERT INTO payments (student_id, amount, date) VALUES
-(1, 23000, '2026-02-10'),
-(2, 23000, '2026-02-12'),
-(3, 20000, '2026-02-11'),
-(4, 20000, '2026-02-15'),
+(1, 23000, '2026-02-10'), (2, 23000, '2026-02-12'),
+(3, 20000, '2026-02-11'), (4, 20000, '2026-02-15'),
 (5, 23000, '2026-02-14'),
-(6, 20800, '2026-02-10'),
-(7, 20800, '2026-02-13'),
-(8, 17800, '2026-02-12'),
-(9, 17800, '2026-02-14'),
+(6, 20800, '2026-02-10'), (7, 20800, '2026-02-13'),
+(8, 17800, '2026-02-12'), (9, 17800, '2026-02-14'),
 (10, 17800, '2026-02-11'),
-(11, 25200, '2026-02-10'),
-(12, 25200, '2026-02-15'),
-(13, 22200, '2026-02-11'),
-(14, 22200, '2026-02-14'),
-(16, 19000, '2026-02-10'),
-(17, 19000, '2026-02-12'),
-(18, 16000, '2026-02-13'),
-(19, 16000, '2026-02-15');
+(11, 25200, '2026-02-10'), (12, 25200, '2026-02-15'),
+(13, 22200, '2026-02-11'), (14, 22200, '2026-02-14'),
+(16, 19000, '2026-02-10'), (17, 19000, '2026-02-12'),
+(18, 16000, '2026-02-13'), (19, 16000, '2026-02-15');
 
--- March 2026 payments
+-- March 2026
 INSERT INTO payments (student_id, amount, date) VALUES
-(1, 23000, '2026-03-10'),
-(2, 23000, '2026-03-12'),
-(3, 20000, '2026-03-11'),
-(4, 20000, '2026-03-14'),
+(1, 23000, '2026-03-10'), (2, 23000, '2026-03-12'),
+(3, 20000, '2026-03-11'), (4, 20000, '2026-03-14'),
 (5, 23000, '2026-03-13'),
-(6, 20800, '2026-03-10'),
-(7, 20800, '2026-03-11'),
-(8, 17800, '2026-03-13'),
-(9, 17800, '2026-03-15'),
+(6, 20800, '2026-03-10'), (7, 20800, '2026-03-11'),
+(8, 17800, '2026-03-13'), (9, 17800, '2026-03-15'),
 (10, 17800, '2026-03-12'),
-(11, 25200, '2026-03-10'),
-(12, 25200, '2026-03-14'),
+(11, 25200, '2026-03-10'), (12, 25200, '2026-03-14'),
 (13, 22200, '2026-03-12'),
-(16, 19000, '2026-03-10'),
-(17, 19000, '2026-03-11'),
+(16, 19000, '2026-03-10'), (17, 19000, '2026-03-11'),
 (18, 16000, '2026-03-14');
+
+-- ============================================================
+-- 14. USERS (seeded by DataInitializer on app startup with BCrypt)
+-- Listed here for reference. Passwords in plaintext for documentation:
+--
+-- | Email                | Password    | Role                 | Hall        |
+-- |----------------------|-------------|----------------------|-------------|
+-- | student@hms.edu      | student123  | STUDENT              | North Hall  |
+-- | warden@hms.edu       | warden123   | WARDEN               | North Hall  |
+-- | cwarden@hms.edu      | cwarden123  | CONTROLLING_WARDEN   | (all halls) |
+-- | mess@hms.edu         | mess123     | MESS_MANAGER         | North Hall  |
+-- | clerk@hms.edu        | clerk123    | CLERK                | North Hall  |
+-- | hmc@hms.edu          | hmc123      | HMC_CHAIRMAN         | (all halls) |
+-- | student2@hms.edu     | student123  | STUDENT              | South Hall  |
+-- | warden2@hms.edu      | warden123   | WARDEN               | South Hall  |
+-- | student3@hms.edu     | student123  | STUDENT              | East Hall   |
+-- | warden3@hms.edu      | warden123   | WARDEN               | East Hall   |
+-- | student4@hms.edu     | student123  | STUDENT              | West Hall   |
+-- | warden4@hms.edu      | warden123   | WARDEN               | West Hall   |
+-- ============================================================
+
+-- ============================================================
+-- 15. PERMISSIONS (seeded by DataInitializer on app startup)
+-- Role-permission mapping:
+--
+-- STUDENT:              VIEW_OWN_DUES, VIEW_OWN_COMPLAINTS, CREATE_COMPLAINT, VIEW_OWN_PAYMENTS
+-- WARDEN:               VIEW_HALL_STUDENTS, VIEW_HALL_COMPLAINTS, POST_ATR, VIEW_HALL_OCCUPANCY,
+--                        MANAGE_HALL_STAFF, VIEW_SALARY_SHEET, MANAGE_EXPENDITURES,
+--                        VIEW_ANNUAL_STATEMENT, ADMIT_STUDENT
+-- CONTROLLING_WARDEN:   VIEW_ALL_HALLS, VIEW_ALL_COMPLAINTS, VIEW_OVERALL_OCCUPANCY
+-- MESS_MANAGER:         MANAGE_MESS_CHARGES, VIEW_PAYMENT_SHEET
+-- CLERK:                MANAGE_STAFF_LEAVES, VIEW_SALARY_SHEET
+-- HMC_CHAIRMAN:         MANAGE_GRANTS, MANAGE_HALLS, VIEW_ALL_EXPENDITURES,
+--                        VIEW_ALL_STUDENTS, ALLOCATE_GRANTS
+-- ============================================================
 
 -- ============================================================
 -- Verification Queries
@@ -559,3 +499,9 @@ SELECT hall_id, COUNT(*) AS count, SUM(amount) AS total FROM expenditures GROUP 
 
 SELECT '--- PAYMENTS ---' AS Info;
 SELECT MONTH(date) AS month, COUNT(*) AS count, SUM(amount) AS total FROM payments GROUP BY MONTH(date);
+
+SELECT '--- USERS ---' AS Info;
+SELECT id, email, name, role, hall_id, hall_name FROM users;
+
+SELECT '--- PERMISSIONS ---' AS Info;
+SELECT role, COUNT(*) AS permission_count FROM permissions GROUP BY role;

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Eye, EyeOff, GraduationCap, Lock, Mail } from "lucide-react";
-import { useAuth, validateLogin, DEMO_ACCOUNTS, ROLE_HOME, ROLE_LABELS } from "./lib/auth";
+import { useAuth, DEMO_ACCOUNTS, ROLE_HOME, ROLE_LABELS } from "./lib/auth";
+import { authApi, setStoredToken } from "./lib/api";
+import type { Role } from "./lib/types";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -19,15 +21,25 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 300));
-    const user = validateLogin(email, password);
-    if (!user) {
-      setError("Invalid email or password.");
+    try {
+      const res = await authApi.login(email, password);
+      setStoredToken(res.token);
+      const user = {
+        role: res.role as Role,
+        name: res.name,
+        email: res.email,
+        hallId: res.hallId,
+        hallName: res.hallName,
+        studentId: res.studentId,
+        registrationNumber: res.registrationNumber,
+      };
+      login(user);
+      router.push(ROLE_HOME[user.role]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid email or password.");
+    } finally {
       setLoading(false);
-      return;
     }
-    login(user);
-    router.push(ROLE_HOME[user.role]);
   };
 
   const fillDemo = (idx: number) => {

@@ -16,6 +16,17 @@ export interface AuthUser {
   registrationNumber?: string;
 }
 
+export interface LoginResponse {
+  token: string;
+  role: Role;
+  name: string;
+  email: string;
+  hallId?: number;
+  hallName?: string;
+  studentId?: number;
+  registrationNumber?: string;
+}
+
 export interface Hall {
   id: number;
   name: string;

@@ -1,24 +1,84 @@
 import type {
   Hall, Room, Student, Staff, Warden, Complaint, MessManager,
   MessCharge, Grant, HallGrant, Expenditure, Payment, StaffLeave,
-  StudentDues, MessPaymentSheet, SalaryRecord, HallOccupancy, AnnualStatement
+  StudentDues, MessPaymentSheet, SalaryRecord, HallOccupancy, AnnualStatement,
+  LoginResponse
 } from "./types";
 
 const BASE = "http://localhost:8080/api";
 
+const TOKEN_KEY = "hms_token";
+
+export function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setStoredToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearStoredToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getStoredToken();
+  const baseHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: baseHeaders,
   });
+
+  if (res.status === 401) {
+    if (path.startsWith("/auth/")) {
+      const text = await res.text();
+      let message = "Invalid email or password.";
+      try {
+        const json = JSON.parse(text);
+        message = json.message || message;
+      } catch { /* use default */ }
+      throw new Error(message);
+    }
+    clearStoredToken();
+    localStorage.removeItem("hms_user");
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+    throw new Error("Session expired. Please login again.");
+  }
+
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
+    let message = text;
+    try {
+      const json = JSON.parse(text);
+      message = json.message || text;
+    } catch {
+      // use raw text
+    }
+    throw new Error(message || `HTTP ${res.status}`);
   }
+
   const text = await res.text();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (text ? JSON.parse(text) : null) as any;
 }
+
+// Auth
+export const authApi = {
+  login: (email: string, password: string) =>
+    request<LoginResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+
+  me: () => request<LoginResponse>("/auth/me"),
+};
 
 // Halls
 export const api = {
