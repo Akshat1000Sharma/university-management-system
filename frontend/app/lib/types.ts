@@ -28,8 +28,8 @@ export interface Room {
   roomNumber: string;
   roomType: "SINGLE" | "TWIN_SHARING";
   hallId: number;
-  rentAmount: number;
-  isOccupied?: boolean;
+  rent: number;
+  occupied?: boolean;
 }
 
 export interface Student {
@@ -165,13 +165,10 @@ export interface SalaryRecord {
   staffName: string;
   staffType: string;
   dailyPay: number;
+  totalDays: number;
+  leaveDays: number;
   workingDays: number;
-  leavesTaken: number;
-  baseSalary: number;
-  deduction: number;
-  netSalary: number;
-  month: number;
-  year: number;
+  salary: number;
 }
 
 export interface HallOccupancy {
@@ -179,25 +176,17 @@ export interface HallOccupancy {
   hallName: string;
   totalRooms: number;
   occupiedRooms: number;
-  emptyRooms: number;
-  occupancyPercentage: number;
+  vacantRooms: number;
+  occupancyPercent: number;
 }
 
 export interface AnnualStatement {
   hallId: number;
   hallName: string;
   year: number;
-  totalIncome: number;
-  totalExpenditure: number;
-  totalGrant: number;
-  netBalance: number;
-  incomeBreakdown?: {
-    studentFeesCollected: number;
-    otherIncome: number;
-  };
-  expenditureBreakdown?: {
-    staffSalaries: number;
-    maintenance: number;
-    utilities: number;
-  };
+  grantAllocated: number;
+  totalSalariesPaid: number;
+  totalExpenditures: number;
+  totalBalance: number;
+  salaryDetails?: SalaryRecord[];
 }

@@ -31,7 +31,7 @@ export default function WardenSalaryPage() {
 
   useEffect(() => { load(); }, [month, year, user]);
 
-  const total = records.reduce((s, r) => s + r.netSalary, 0);
+  const total = records.reduce((s, r) => s + r.salary, 0);
   const years = [currentYear() - 1, currentYear()];
 
   return (
@@ -60,7 +60,7 @@ export default function WardenSalaryPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
               <StatCard label="Total Staff" value={records.length} color="blue" />
               <StatCard label="Total Salary Payable" value={formatCurrency(total)} color="emerald" />
-              <StatCard label="Total Leaves Taken" value={records.reduce((s, r) => s + r.leavesTaken, 0)} color="amber" />
+              <StatCard label="Total Leaves Taken" value={records.reduce((s, r) => s + r.leaveDays, 0)} color="amber" />
             </div>
           )}
 
@@ -73,17 +73,17 @@ export default function WardenSalaryPage() {
             {records.length === 0 ? (
               <EmptyState title="No salary data" description="No staff records found for this period." />
             ) : (
-              <Table headers={["#", "Name", "Type", "Daily Pay", "Working Days", "Leaves", "Deduction", "Net Salary"]}>
+              <Table headers={["#", "Name", "Type", "Daily Pay", "Total Days", "Working Days", "Leaves", "Salary"]}>
                 {records.map((r, i) => (
                   <Tr key={r.staffId}>
                     <Td>{i + 1}</Td>
                     <Td className="font-medium">{r.staffName}</Td>
                     <Td><span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{r.staffType}</span></Td>
                     <Td>₹{r.dailyPay}/day</Td>
+                    <Td className="text-center">{r.totalDays}</Td>
                     <Td className="text-center">{r.workingDays}</Td>
-                    <Td className="text-center text-amber-600">{r.leavesTaken}</Td>
-                    <Td className="text-red-600">-{formatCurrency(r.deduction)}</Td>
-                    <Td className="font-bold text-emerald-600">{formatCurrency(r.netSalary)}</Td>
+                    <Td className="text-center text-amber-600">{r.leaveDays}</Td>
+                    <Td className="font-bold text-emerald-600">{formatCurrency(r.salary)}</Td>
                   </Tr>
                 ))}
                 <tr className="bg-slate-50 border-t-2 border-slate-200">

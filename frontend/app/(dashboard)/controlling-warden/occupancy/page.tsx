@@ -28,7 +28,7 @@ export default function OverallOccupancyPage() {
 
   const totalRooms = occupancies.reduce((s, o) => s + o.totalRooms, 0);
   const totalOccupied = occupancies.reduce((s, o) => s + o.occupiedRooms, 0);
-  const totalEmpty = occupancies.reduce((s, o) => s + o.emptyRooms, 0);
+  const totalEmpty = occupancies.reduce((s, o) => s + o.vacantRooms, 0);
   const overallPct = totalRooms > 0 ? (totalOccupied / totalRooms) * 100 : 0;
 
   return (
@@ -66,11 +66,11 @@ export default function OverallOccupancyPage() {
                     <span className="text-emerald-700 font-medium">{o.occupiedRooms}</span>
                   </Td>
                   <Td>
-                    <span className="text-amber-700 font-medium">{o.emptyRooms}</span>
+                    <span className="text-amber-700 font-medium">{o.vacantRooms}</span>
                   </Td>
                   <Td>
                     <div className="flex items-center gap-3 min-w-40">
-                      <OccupancyBar percentage={o.occupancyPercentage} />
+                      <OccupancyBar percentage={o.occupancyPercent} />
                     </div>
                   </Td>
                 </Tr>
@@ -81,9 +81,9 @@ export default function OverallOccupancyPage() {
                 <div key={o.hallId}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium text-slate-700">{o.hallName}</span>
-                    <span className="text-slate-500">{o.occupiedRooms}/{o.totalRooms} — {o.occupancyPercentage.toFixed(1)}%</span>
+                    <span className="text-slate-500">{o.occupiedRooms}/{o.totalRooms} — {o.occupancyPercent.toFixed(1)}%</span>
                   </div>
-                  <OccupancyBar percentage={o.occupancyPercentage} />
+                  <OccupancyBar percentage={o.occupancyPercent} />
                 </div>
               ))}
             </div>

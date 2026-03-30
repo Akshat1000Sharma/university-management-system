@@ -90,7 +90,7 @@ export default function ControllingWardenDashboard() {
                   <span className="font-medium text-slate-700">{o.hallName}</span>
                   <span className="text-slate-500">{o.occupiedRooms}/{o.totalRooms} rooms</span>
                 </div>
-                <OccupancyBar percentage={o.occupancyPercentage} />
+                <OccupancyBar percentage={o.occupancyPercent} />
               </div>
             ))}
           </div>

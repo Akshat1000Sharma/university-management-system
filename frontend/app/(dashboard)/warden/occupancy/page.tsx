@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Home } from "lucide-react";
+import { Home, BedDouble, DoorOpen, TrendingUp } from "lucide-react";
 import { useAuth } from "../../../lib/auth";
 import { api } from "../../../lib/api";
+import { formatCurrency } from "../../../lib/utils";
 import {
   PageHeader, Card, StatCard, Spinner, ErrorMsg, OccupancyBar,
   Table, Tr, Td
@@ -40,7 +41,7 @@ export default function WardenOccupancyPage() {
 
   if (loading) return <Spinner />;
 
-  const occupiedRoomIds = new Set(students.map((s) => s.roomId).filter(Boolean));
+  const pct = occupancy?.occupancyPercent ?? 0;
 
   return (
     <div>
@@ -50,30 +51,58 @@ export default function WardenOccupancyPage() {
       {occupancy && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Total Rooms" value={occupancy.totalRooms} icon={<Home className="w-5 h-5" />} color="blue" />
-            <StatCard label="Occupied" value={occupancy.occupiedRooms} color="emerald" />
-            <StatCard label="Empty" value={occupancy.emptyRooms} color="amber" />
-            <StatCard label="Occupancy Rate" value={`${occupancy.occupancyPercentage.toFixed(1)}%`} color="indigo" />
+            <StatCard
+              label="Total Rooms"
+              value={occupancy.totalRooms}
+              icon={<Home className="w-5 h-5" />}
+              color="blue"
+            />
+            <StatCard
+              label="Occupied"
+              value={occupancy.occupiedRooms}
+              icon={<BedDouble className="w-5 h-5" />}
+              color="emerald"
+            />
+            <StatCard
+              label="Vacant"
+              value={occupancy.vacantRooms}
+              icon={<DoorOpen className="w-5 h-5" />}
+              color="amber"
+            />
+            <StatCard
+              label="Occupancy Rate"
+              value={`${pct.toFixed(1)}%`}
+              icon={<TrendingUp className="w-5 h-5" />}
+              color="indigo"
+            />
           </div>
 
           <Card className="p-5 mb-6">
-            <p className="text-sm font-semibold text-slate-600 mb-2">Occupancy Rate</p>
-            <OccupancyBar percentage={occupancy.occupancyPercentage} />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-slate-600">Occupancy Rate</p>
+              <span className="text-lg font-bold text-indigo-600">{pct.toFixed(1)}%</span>
+            </div>
+            <OccupancyBar percentage={pct} />
+            <div className="flex justify-between text-xs text-slate-400 mt-2">
+              <span>{occupancy.occupiedRooms} occupied</span>
+              <span>{occupancy.vacantRooms} vacant</span>
+            </div>
           </Card>
         </>
       )}
 
       <Card>
-        <div className="px-4 py-3 border-b border-slate-100">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
           <h3 className="font-semibold text-slate-700">Room List</h3>
+          <span className="text-xs text-slate-400">{rooms.length} rooms total</span>
         </div>
         {rooms.length === 0 ? (
           <div className="text-center py-10 text-slate-400 text-sm">No rooms found</div>
         ) : (
-          <Table headers={["Room No.", "Type", "Rent", "Status", "Student"]}>
+          <Table headers={["Room No.", "Type", "Rent / month", "Status", "Student"]}>
             {rooms.map((room) => {
               const student = students.find((s) => s.roomId === room.id);
-              const occupied = occupiedRoomIds.has(room.id) || room.isOccupied;
+              const occupied = room.occupied ?? false;
               return (
                 <Tr key={room.id}>
                   <Td className="font-semibold">{room.roomNumber}</Td>
@@ -82,9 +111,9 @@ export default function WardenOccupancyPage() {
                       {room.roomType.replace("_", " ")}
                     </span>
                   </Td>
-                  <Td className="text-slate-600">₹{room.rentAmount?.toLocaleString("en-IN")}</Td>
+                  <Td className="text-slate-700 font-medium">{formatCurrency(room.rent)}</Td>
                   <Td>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${occupied ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${occupied ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                       {occupied ? "Occupied" : "Vacant"}
                     </span>
                   </Td>

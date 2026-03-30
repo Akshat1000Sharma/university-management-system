@@ -48,7 +48,11 @@ export default function WardenDashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard label="Total Students" value={students.length} icon={<Users className="w-5 h-5" />} color="blue" />
-        <StatCard label="Occupancy" value={occupancy ? `${occupancy.occupancyPercentage.toFixed(0)}%` : "—"} icon={<Home className="w-5 h-5" />} color="emerald" />
+        <StatCard label="Occupancy" value={
+  typeof occupancy?.occupancyPercent === "number"
+    ? `${occupancy.occupancyPercent.toFixed(0)}%`
+    : "—"
+} icon={<Home className="w-5 h-5" />} color="emerald" />
         <StatCard label="Total Complaints" value={complaints.length} icon={<MessageSquare className="w-5 h-5" />} color="amber" />
         <StatCard label="Pending Complaints" value={pending} icon={<MessageSquare className="w-5 h-5" />} color="rose" />
       </div>
@@ -59,15 +63,24 @@ export default function WardenDashboard() {
           <div className="flex items-center gap-6 text-sm">
             <div><span className="text-slate-500">Total Rooms: </span><span className="font-bold">{occupancy.totalRooms}</span></div>
             <div><span className="text-slate-500">Occupied: </span><span className="font-bold text-emerald-600">{occupancy.occupiedRooms}</span></div>
-            <div><span className="text-slate-500">Empty: </span><span className="font-bold text-amber-600">{occupancy.emptyRooms}</span></div>
+            <div><span className="text-slate-500">Vacant: </span><span className="font-bold text-amber-600">{occupancy.vacantRooms}</span></div>
           </div>
           <div className="mt-3 bg-slate-100 rounded-full h-3">
             <div
               className="h-3 rounded-full bg-emerald-500 transition-all"
-              style={{ width: `${occupancy.occupancyPercentage}%` }}
+              style={{
+  width:
+    typeof occupancy?.occupancyPercent === "number"
+      ? `${occupancy.occupancyPercent}%`
+      : "0%",
+}}
             />
           </div>
-          <p className="text-xs text-slate-400 mt-1">{occupancy.occupancyPercentage.toFixed(1)}% occupied</p>
+          <p className="text-xs text-slate-400 mt-1">
+  {typeof occupancy?.occupancyPercent === "number"
+    ? `${occupancy.occupancyPercent.toFixed(1)}% occupied`
+    : "—"}
+</p>
         </Card>
       )}
 

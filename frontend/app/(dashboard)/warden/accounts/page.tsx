@@ -51,65 +51,67 @@ export default function WardenAccountsPage() {
       {statement && !loading && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <StatCard label="Total Income" value={formatCurrency(statement.totalIncome)} color="emerald" />
-            <StatCard label="Total Expenditure" value={formatCurrency(statement.totalExpenditure)} color="rose" />
-            <StatCard label="Total Grant" value={formatCurrency(statement.totalGrant)} color="blue" />
-            <StatCard label="Net Balance" value={formatCurrency(statement.netBalance)} color={statement.netBalance >= 0 ? "emerald" : "rose"} />
+            <StatCard label="Grant Allocated" value={formatCurrency(statement.grantAllocated)} color="blue" />
+            <StatCard label="Total Salaries Paid" value={formatCurrency(statement.totalSalariesPaid)} color="amber" />
+            <StatCard label="Other Expenditures" value={formatCurrency(statement.totalExpenditures)} color="rose" />
+            <StatCard label="Net Balance" value={formatCurrency(statement.totalBalance)} color={statement.totalBalance >= 0 ? "emerald" : "rose"} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {statement.incomeBreakdown && (
-              <Card className="p-5">
-                <p className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-emerald-600" />
-                  Income Breakdown
-                </p>
-                <div className="space-y-3">
-                  {Object.entries(statement.incomeBreakdown).map(([key, val]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, " $1")}</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(val)}</span>
-                    </div>
-                  ))}
-                  <div className="border-t border-slate-100 pt-2 flex justify-between text-sm font-bold">
-                    <span>Total Income</span>
-                    <span className="text-emerald-600">{formatCurrency(statement.totalIncome)}</span>
-                  </div>
+            <Card className="p-5">
+              <p className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-rose-600" />
+                Expenditure Breakdown
+              </p>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Staff Salaries</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(statement.totalSalariesPaid)}</span>
                 </div>
-              </Card>
-            )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Other Expenditures</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(statement.totalExpenditures)}</span>
+                </div>
+                <div className="border-t border-slate-100 pt-2 flex justify-between text-sm font-bold">
+                  <span>Total Expenditure</span>
+                  <span className="text-rose-600">{formatCurrency(statement.totalSalariesPaid + statement.totalExpenditures)}</span>
+                </div>
+              </div>
+            </Card>
 
-            {statement.expenditureBreakdown && (
-              <Card className="p-5">
-                <p className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-rose-600" />
-                  Expenditure Breakdown
-                </p>
-                <div className="space-y-3">
-                  {Object.entries(statement.expenditureBreakdown).map(([key, val]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, " $1")}</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(val)}</span>
-                    </div>
-                  ))}
-                  <div className="border-t border-slate-100 pt-2 flex justify-between text-sm font-bold">
-                    <span>Total Expenditure</span>
-                    <span className="text-rose-600">{formatCurrency(statement.totalExpenditure)}</span>
-                  </div>
+            <Card className="p-5">
+              <p className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+                Financial Summary
+              </p>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Grant Allocated</span>
+                  <span className="font-semibold text-emerald-700">+{formatCurrency(statement.grantAllocated)}</span>
                 </div>
-              </Card>
-            )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Total Expenditure</span>
+                  <span className="font-semibold text-rose-600">-{formatCurrency(statement.totalSalariesPaid + statement.totalExpenditures)}</span>
+                </div>
+                <div className="border-t border-slate-100 pt-2 flex justify-between text-sm font-bold">
+                  <span>Net Balance</span>
+                  <span className={statement.totalBalance >= 0 ? "text-emerald-600" : "text-red-600"}>
+                    {formatCurrency(statement.totalBalance)}
+                  </span>
+                </div>
+              </div>
+            </Card>
           </div>
 
           <Card className="p-5 mt-6">
             <div className="flex items-center justify-between">
               <p className="font-semibold text-slate-700">Annual Net Balance ({year})</p>
-              <p className={`text-2xl font-bold ${statement.netBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                {formatCurrency(statement.netBalance)}
+              <p className={`text-2xl font-bold ${statement.totalBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {formatCurrency(statement.totalBalance)}
               </p>
             </div>
             <p className="text-xs text-slate-400 mt-2">
-              Formula: Total Income + Total Grant − Total Expenditure
+              Formula: Grant Allocated − Staff Salaries − Other Expenditures
             </p>
           </Card>
         </>

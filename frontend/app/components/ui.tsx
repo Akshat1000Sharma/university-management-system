@@ -235,7 +235,9 @@ export function OccupancyBar({ percentage }: { percentage: number }) {
         />
       </div>
       <span className="text-sm font-semibold text-slate-700 w-12 text-right">
-        {percentage.toFixed(1)}%
+        {typeof percentage === "number"
+          ? `${percentage.toFixed(1)}%`
+          : "—"}
       </span>
     </div>
   );

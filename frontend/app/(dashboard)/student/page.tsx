@@ -54,8 +54,8 @@ export default function StudentDashboard() {
                 <p className="font-semibold text-slate-900">{student.name}</p>
               </div>
               <div>
-                <p className="text-slate-400 text-xs">Registration No.</p>
-                <p className="font-semibold text-slate-900">{student.registrationNumber}</p>
+                <p className="text-slate-400 text-xs">Student ID</p>
+                <p className="font-semibold text-slate-900">{student.id}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Hall</p>

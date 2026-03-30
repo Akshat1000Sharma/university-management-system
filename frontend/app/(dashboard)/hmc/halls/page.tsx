@@ -22,7 +22,7 @@ export default function HmcHallsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [hallForm, setHallForm] = useState({ name: "", isNew: "true", amenityCharge: "" });
-  const [roomForm, setRoomForm] = useState({ hallId: "", roomNumber: "", roomType: "SINGLE", rentAmount: "" });
+  const [roomForm, setRoomForm] = useState({ hallId: "", roomNumber: "", roomType: "SINGLE", rent: "" });
 
   const load = async () => {
     try {
@@ -54,9 +54,9 @@ export default function HmcHallsPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await api.rooms.create({ roomNumber: roomForm.roomNumber, roomType: roomForm.roomType as Room["roomType"], hallId: Number(roomForm.hallId), rentAmount: Number(roomForm.rentAmount) });
+      await api.rooms.create({ roomNumber: roomForm.roomNumber, roomType: roomForm.roomType as Room["roomType"], hallId: Number(roomForm.hallId), rent: Number(roomForm.rent) });
       setShowRoomModal(false);
-      setRoomForm({ hallId: "", roomNumber: "", roomType: "SINGLE", rentAmount: "" });
+      setRoomForm({ hallId: "", roomNumber: "", roomType: "SINGLE", rent: "" });
       await load();
     } catch (e: unknown) { setError(e instanceof Error ? e.message : "Failed"); }
     finally { setSubmitting(false); }
@@ -93,7 +93,7 @@ export default function HmcHallsPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <StatCard label="Total Halls" value={halls.length} color="blue" />
         <StatCard label="Total Rooms" value={rooms.length} color="indigo" />
-        <StatCard label="Occupied Rooms" value={rooms.filter((r) => r.isOccupied).length} color="emerald" />
+        <StatCard label="Occupied Rooms" value={rooms.filter((r) => r.occupied).length} color="emerald" />
       </div>
 
       {halls.length === 0 ? (
@@ -137,10 +137,10 @@ export default function HmcHallsPage() {
                                 {r.roomType.replace("_", " ")}
                               </span>
                             </Td>
-                            <Td>{formatCurrency(r.rentAmount)}</Td>
+                            <Td>{formatCurrency(r.rent)}</Td>
                             <Td>
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${r.isOccupied ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-                                {r.isOccupied ? "Occupied" : "Vacant"}
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${r.occupied ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                                {r.occupied ? "Occupied" : "Vacant"}
                               </span>
                             </Td>
                             <Td>
@@ -202,7 +202,7 @@ export default function HmcHallsPage() {
               </Select>
             </FormField>
             <FormField label="Rent Amount (₹/month)" required>
-              <Input type="number" value={roomForm.rentAmount} onChange={(e) => setRoomForm({ ...roomForm, rentAmount: e.target.value })} min="1" required placeholder="e.g. 15000" />
+              <Input type="number" value={roomForm.rent} onChange={(e) => setRoomForm({ ...roomForm, rent: e.target.value })} min="1" required placeholder="e.g. 15000" />
             </FormField>
             <div className="flex justify-end gap-2 pt-2">
               <Btn variant="secondary" onClick={() => setShowRoomModal(false)}>Cancel</Btn>
