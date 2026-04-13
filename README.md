@@ -166,6 +166,118 @@ app/
 └── page.tsx          # Login page
 ```
 
+## Testing
+
+The project includes comprehensive automated tests covering backend unit tests, controller tests, and frontend Selenium UI tests.
+
+### Test Summary
+
+| Category | Framework | Count | What's Covered |
+|----------|-----------|-------|----------------|
+| Service Unit Tests | JUnit 5 + Mockito | 15 test classes (~95 tests) | All 15 service implementations: CRUD operations, business logic, edge cases, error handling |
+| Controller Tests | JUnit 5 + MockMvc | 15 test classes (~100 tests) | All 15 REST controllers: HTTP methods, status codes, JSON responses, 404 handling |
+| Selenium UI Tests | Selenium + Chrome | 4 test classes (~30 tests) | Login flow, role-based routing, dashboard navigation, sign out, demo accounts |
+
+### Running Backend Unit Tests
+
+Backend unit tests use an **H2 in-memory database** — no MySQL or external services required.
+
+```bash
+cd backend
+./gradlew test
+```
+
+On Windows:
+```bash
+cd backend
+gradlew.bat test
+```
+
+Test reports are generated at `backend/build/reports/tests/test/index.html`.
+
+### Running Selenium UI Tests
+
+Selenium tests require both the **backend** (port 8080) and **frontend** (port 3000) to be running, plus Chrome browser installed.
+
+```bash
+# Terminal 1: Start backend
+cd backend
+./gradlew bootRun
+
+# Terminal 2: Start frontend
+cd frontend
+npm run dev
+
+# Terminal 3: Run Selenium tests
+cd backend
+./gradlew seleniumTest
+```
+
+### Run-All-Tests Script
+
+A convenience script is provided at the project root to run all tests:
+
+```bash
+# Linux/Mac
+chmod +x run-tests.sh
+./run-tests.sh              # Backend unit tests only
+./run-tests.sh --all        # Backend + Selenium tests
+./run-tests.sh --selenium   # Selenium tests only
+
+# Windows
+run-tests.bat               # Backend unit tests only
+run-tests.bat --all         # Backend + Selenium tests
+run-tests.bat --selenium    # Selenium tests only
+```
+
+### Manual Test Cases
+
+See [TEST_CASES.md](TEST_CASES.md) for a structured manual test case document covering 46 test scenarios across all modules.
+
+### Test Architecture
+
+```
+backend/src/test/java/com/hms/
+├── service/impl/          # Service layer unit tests (Mockito)
+│   ├── AuthServiceImplTest.java
+│   ├── BusinessServiceImplTest.java
+│   ├── StudentServiceImplTest.java
+│   ├── ComplaintServiceImplTest.java
+│   ├── HallServiceImplTest.java
+│   ├── RoomServiceImplTest.java
+│   ├── StaffServiceImplTest.java
+│   ├── PaymentServiceImplTest.java
+│   ├── ExpenditureServiceImplTest.java
+│   ├── GrantServiceImplTest.java
+│   ├── WardenServiceImplTest.java
+│   ├── MessManagerServiceImplTest.java
+│   ├── MessChargeServiceImplTest.java
+│   ├── HallGrantServiceImplTest.java
+│   └── StaffLeaveServiceImplTest.java
+├── controller/            # Controller layer tests (MockMvc)
+│   ├── AuthControllerTest.java
+│   ├── BusinessControllerTest.java
+│   ├── StudentControllerTest.java
+│   ├── ComplaintControllerTest.java
+│   ├── HallControllerTest.java
+│   ├── RoomControllerTest.java
+│   ├── StaffControllerTest.java
+│   ├── PaymentControllerTest.java
+│   ├── ExpenditureControllerTest.java
+│   ├── GrantControllerTest.java
+│   ├── WardenControllerTest.java
+│   ├── MessManagerControllerTest.java
+│   ├── MessChargeControllerTest.java
+│   ├── HallGrantControllerTest.java
+│   └── StaffLeaveControllerTest.java
+└── selenium/              # Selenium UI tests (Chrome WebDriver)
+    ├── SeleniumTestBase.java
+    ├── LoginPageTest.java
+    ├── StudentDashboardTest.java
+    ├── WardenDashboardTest.java
+    └── RoleBasedAccessTest.java
+```
+
 ## License
 
 This project is for educational purposes as part of a university management systems course.

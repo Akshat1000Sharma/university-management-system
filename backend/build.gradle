@@ -38,13 +38,24 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.seleniumhq.selenium:selenium-java:4.27.0'
+	testImplementation 'io.github.bonigarcia:webdrivermanager:6.0.1'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		excludeTags 'selenium'
+	}
+}
+
+tasks.register('seleniumTest', Test) {
+	useJUnitPlatform {
+		includeTags 'selenium'
+	}
+	description = 'Runs Selenium UI tests (requires backend on :8080 and frontend on :3000)'
+	group = 'verification'
 }
