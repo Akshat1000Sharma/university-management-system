@@ -84,6 +84,9 @@ interface DemoAccount {
 
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   { email: "student@hms.edu", password: "student123", role: "STUDENT", label: "Student" },
+  { email: "student5@hms.edu", password: "student123", role: "STUDENT", label: "Student (North demo)" },
+  { email: "student6@hms.edu", password: "student123", role: "STUDENT", label: "Student (North demo 2)" },
+  { email: "student7@hms.edu", password: "student123", role: "STUDENT", label: "Student (North demo 3)" },
   { email: "warden@hms.edu", password: "warden123", role: "WARDEN", label: "Hall Warden" },
   { email: "cwarden@hms.edu", password: "cwarden123", role: "CONTROLLING_WARDEN", label: "Controlling Warden" },
   { email: "mess@hms.edu", password: "mess123", role: "MESS_MANAGER", label: "Mess Manager" },

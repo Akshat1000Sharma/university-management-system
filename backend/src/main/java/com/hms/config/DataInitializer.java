@@ -141,6 +141,33 @@ public class DataInitializer implements CommandLineRunner {
                 .name("Mrs. Singh")
                 .role(UserRole.WARDEN)
                 .hallId(4L).hallName("West Hall")
+                .build(),
+
+            User.builder()
+                .email("student5@hms.edu")
+                .password(passwordEncoder.encode("student123"))
+                .name("Aarav Mehta")
+                .role(UserRole.STUDENT)
+                .hallId(1L).hallName("North Hall")
+                .studentId(21L).registrationNumber("REG021")
+                .build(),
+
+            User.builder()
+                .email("student6@hms.edu")
+                .password(passwordEncoder.encode("student123"))
+                .name("Isha Kapoor")
+                .role(UserRole.STUDENT)
+                .hallId(1L).hallName("North Hall")
+                .studentId(22L).registrationNumber("REG022")
+                .build(),
+
+            User.builder()
+                .email("student7@hms.edu")
+                .password(passwordEncoder.encode("student123"))
+                .name("Vihaan Chawla")
+                .role(UserRole.STUDENT)
+                .hallId(1L).hallName("North Hall")
+                .studentId(23L).registrationNumber("REG023")
                 .build()
         );
 

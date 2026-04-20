@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @Table(name = "rooms")
 @Getter @Setter @NoArgsConstructor
-@AllArgsConstructor(exclude = "occupantCount")
+@AllArgsConstructor
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

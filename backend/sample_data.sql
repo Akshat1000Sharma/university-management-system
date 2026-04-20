@@ -46,7 +46,7 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('N104', 'TWIN_SHARING', 12000, 1, true),
 ('N105', 'SINGLE', 15000, 1, true),
 ('N106', 'TWIN_SHARING', 12000, 1, false),
-('N107', 'SINGLE', 15000, 1, false),
+('N107', 'SINGLE', 15000, 1, true),
 ('N108', 'TWIN_SHARING', 12000, 1, false);
 
 -- South Hall (hall_id=2)
@@ -83,7 +83,7 @@ INSERT INTO rooms (room_number, room_type, rent, hall_id, is_occupied) VALUES
 ('W108', 'TWIN_SHARING', 10000, 4, false);
 
 -- ============================================================
--- 3. STUDENTS (5 per hall = 20 total)
+-- 3. STUDENTS (23 total: 8 North, 5 South, 5 East, 5 West)
 -- ============================================================
 -- North Hall (hall_id=1, room_ids 1-5)
 INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
@@ -116,6 +116,12 @@ INSERT INTO students (name, address, phone, photo, hall_id, room_id) VALUES
 ('Tanvi Kulkarni', '67 Brigade Rd, Bangalore', '9876543231', 'tanvi.jpg', 4, 27),
 ('Nikhil Saxena', '89 Hazratganj, Lucknow', '9876543232', 'nikhil.jpg', 4, 28),
 ('Shreya Ghosh', '12 Salt Lake, Kolkata', '9876543233', 'shreya.jpg', 4, NULL);
+
+-- Extra demo student logins (ids 21–23; pair with DataInitializer users student5–7@hms.edu)
+INSERT INTO students (name, address, phone, photo, email, registration_number, admission_date, hall_id, room_id) VALUES
+('Aarav Mehta', '10 Campus Rd, Delhi', '9876543401', 'aarav.jpg', 'student5@hms.edu', 'REG021', '2026-04-01', 1, 6),
+('Isha Kapoor', '22 Lake View, Delhi', '9876543402', 'isha.jpg', 'student6@hms.edu', 'REG022', '2026-04-01', 1, 7),
+('Vihaan Chawla', '5 Hostel Lane, Delhi', '9876543403', 'vihaan.jpg', 'student7@hms.edu', 'REG023', '2026-04-01', 1, 8);
 
 -- ============================================================
 -- 4. WARDENS (4 wardens, one per hall)
@@ -238,7 +244,8 @@ INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
 (11, 3, 1, 2026, 3200), (12, 3, 1, 2026, 3200), (13, 3, 1, 2026, 3200),
 (14, 3, 1, 2026, 3200), (15, 3, 1, 2026, 3200),
 (16, 4, 1, 2026, 2500), (17, 4, 1, 2026, 2500), (18, 4, 1, 2026, 2500),
-(19, 4, 1, 2026, 2500), (20, 4, 1, 2026, 2500);
+(19, 4, 1, 2026, 2500), (20, 4, 1, 2026, 2500),
+(21, 1, 1, 2026, 3000), (22, 1, 1, 2026, 3000), (23, 1, 1, 2026, 3000);
 
 -- February 2026
 INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
@@ -249,7 +256,8 @@ INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
 (11, 3, 2, 2026, 3200), (12, 3, 2, 2026, 3200), (13, 3, 2, 2026, 3200),
 (14, 3, 2, 2026, 3200), (15, 3, 2, 2026, 3200),
 (16, 4, 2, 2026, 2500), (17, 4, 2, 2026, 2500), (18, 4, 2, 2026, 2500),
-(19, 4, 2, 2026, 2500), (20, 4, 2, 2026, 2500);
+(19, 4, 2, 2026, 2500), (20, 4, 2, 2026, 2500),
+(21, 1, 2, 2026, 3000), (22, 1, 2, 2026, 3000), (23, 1, 2, 2026, 3000);
 
 -- March 2026
 INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
@@ -260,7 +268,8 @@ INSERT INTO mess_charges (student_id, hall_id, month, year, amount) VALUES
 (11, 3, 3, 2026, 3200), (12, 3, 3, 2026, 3200), (13, 3, 3, 2026, 3200),
 (14, 3, 3, 2026, 3200), (15, 3, 3, 2026, 3200),
 (16, 4, 3, 2026, 2500), (17, 4, 3, 2026, 2500), (18, 4, 3, 2026, 2500),
-(19, 4, 3, 2026, 2500), (20, 4, 3, 2026, 2500);
+(19, 4, 3, 2026, 2500), (20, 4, 3, 2026, 2500),
+(21, 1, 3, 2026, 3000), (22, 1, 3, 2026, 3000), (23, 1, 3, 2026, 3000);
 
 -- ============================================================
 -- 9. COMPLAINTS (mix of types, statuses, across all halls)
@@ -393,7 +402,8 @@ INSERT INTO payments (student_id, amount, date) VALUES
 (11, 25200, '2026-01-10'), (12, 25200, '2026-01-14'),
 (13, 22200, '2026-01-12'), (14, 22200, '2026-01-16'),
 (16, 19000, '2026-01-10'), (17, 19000, '2026-01-11'),
-(18, 16000, '2026-01-14'), (19, 16000, '2026-01-13');
+(18, 16000, '2026-01-14'), (19, 16000, '2026-01-13'),
+(21, 23000, '2026-01-15'), (22, 23000, '2026-01-16'), (23, 23000, '2026-01-17');
 
 -- February 2026
 INSERT INTO payments (student_id, amount, date) VALUES
@@ -406,7 +416,8 @@ INSERT INTO payments (student_id, amount, date) VALUES
 (11, 25200, '2026-02-10'), (12, 25200, '2026-02-15'),
 (13, 22200, '2026-02-11'), (14, 22200, '2026-02-14'),
 (16, 19000, '2026-02-10'), (17, 19000, '2026-02-12'),
-(18, 16000, '2026-02-13'), (19, 16000, '2026-02-15');
+(18, 16000, '2026-02-13'), (19, 16000, '2026-02-15'),
+(21, 23000, '2026-02-14'), (22, 23000, '2026-02-15'), (23, 23000, '2026-02-16');
 
 -- March 2026
 INSERT INTO payments (student_id, amount, date) VALUES
@@ -419,7 +430,8 @@ INSERT INTO payments (student_id, amount, date) VALUES
 (11, 25200, '2026-03-10'), (12, 25200, '2026-03-14'),
 (13, 22200, '2026-03-12'),
 (16, 19000, '2026-03-10'), (17, 19000, '2026-03-11'),
-(18, 16000, '2026-03-14');
+(18, 16000, '2026-03-14'),
+(21, 23000, '2026-03-11'), (22, 23000, '2026-03-12'), (23, 23000, '2026-03-13');
 
 -- ============================================================
 -- 14. USERS (seeded by DataInitializer on app startup with BCrypt)
@@ -439,6 +451,9 @@ INSERT INTO payments (student_id, amount, date) VALUES
 -- | warden3@hms.edu      | warden123   | WARDEN               | East Hall   |
 -- | student4@hms.edu     | student123  | STUDENT              | West Hall   |
 -- | warden4@hms.edu      | warden123   | WARDEN               | West Hall   |
+-- | student5@hms.edu     | student123  | STUDENT              | North Hall  |
+-- | student6@hms.edu     | student123  | STUDENT              | North Hall  |
+-- | student7@hms.edu     | student123  | STUDENT              | North Hall  |
 -- ============================================================
 
 -- ============================================================
