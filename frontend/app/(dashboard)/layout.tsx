@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   Building2, LayoutDashboard, MessageSquare, CreditCard,
   Users, BarChart3, FileText, Settings, LogOut, ChevronDown,
-  Utensils, Calendar, DollarSign, Gift, Home, Menu, X, Wallet
+  Utensils, Calendar, DollarSign, Gift, Home, Menu, X, Wallet, DoorOpen
 } from "lucide-react";
 import { useAuth, ROLE_LABELS } from "../lib/auth";
 import type { Role } from "../lib/types";
@@ -20,6 +20,7 @@ type NavItem = {
 const NAV_ITEMS: Record<Role, NavItem[]> = {
   STUDENT: [
     { label: "Dashboard", href: "/student", icon: <LayoutDashboard className="w-4 h-4" /> },
+    { label: "Choose room", href: "/student/room", icon: <DoorOpen className="w-4 h-4" /> },
     { label: "My Dues", href: "/student/dues", icon: <CreditCard className="w-4 h-4" /> },
     { label: "Complaints", href: "/student/complaints", icon: <MessageSquare className="w-4 h-4" /> },
     { label: "Payments", href: "/student/payments", icon: <Wallet className="w-4 h-4" /> },

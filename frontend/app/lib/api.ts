@@ -65,8 +65,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   const text = await res.text();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (text ? JSON.parse(text) : null) as any;
+  if (!text) return null as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Response is plain text (e.g. delete confirmation), return as-is
+    return text as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  }
 }
 
 // Auth
@@ -105,6 +110,11 @@ export const api = {
     create: (data: Omit<Student, "id">) => request<Student>("/students", { method: "POST", body: JSON.stringify(data) }),
     update: (id: number, data: Omit<Student, "id">) => request<Student>(`/students/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: number) => request<string>(`/students/${id}`, { method: "DELETE" }),
+    selectRoom: (studentId: number, roomId: number) =>
+      request<Student>(`/students/${studentId}/select-room`, {
+        method: "POST",
+        body: JSON.stringify({ roomId }),
+      }),
   },
 
   staff: {
@@ -191,6 +201,7 @@ export const api = {
     admitStudent: (data: {
       name: string; email: string; phone: string;
       registrationNumber: string; hallId: number; admissionDate: string;
+      roomId?: number;
     }) => request<StudentDues>("/business/admit", { method: "POST", body: JSON.stringify(data) }),
 
     getStudentDues: (studentId: number, month: number, year: number) =>

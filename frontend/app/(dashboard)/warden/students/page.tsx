@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Trash2, UserPlus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Trash2, UserPlus } from "lucide-react";
 import { useAuth } from "../../../lib/auth";
 import { api } from "../../../lib/api";
-import { formatDate } from "../../../lib/utils";
+import { formatCurrency, formatDate, formatRoomType } from "../../../lib/utils";
 import {
   PageHeader, Card, Table, Tr, Td, Spinner, ErrorMsg, EmptyState,
   Modal, FormField, Input, Select, Btn, StatCard
@@ -22,6 +22,8 @@ export default function WardenStudentsPage() {
   const [form, setForm] = useState({
     name: "", email: "", phone: "", registrationNumber: "", admissionDate: new Date().toISOString().split("T")[0],
   });
+  const [admitRoomId, setAdmitRoomId] = useState("");
+  const [vacancyTypeFilter, setVacancyTypeFilter] = useState<"ALL" | "SINGLE" | "TWIN_SHARING">("ALL");
 
   const load = async () => {
     if (!user?.hallId) { setLoading(false); return; }
@@ -46,8 +48,12 @@ export default function WardenStudentsPage() {
     if (!user?.hallId) return;
     setSubmitting(true);
     try {
-      await api.business.admitStudent({ ...form, hallId: user.hallId });
+      const body: Parameters<typeof api.business.admitStudent>[0] = { ...form, hallId: user.hallId };
+      if (admitRoomId) body.roomId = Number(admitRoomId);
+      await api.business.admitStudent(body);
       setShowAdmit(false);
+      setAdmitRoomId("");
+      setVacancyTypeFilter("ALL");
       setForm({ name: "", email: "", phone: "", registrationNumber: "", admissionDate: new Date().toISOString().split("T")[0] });
       await load();
     } catch (e: unknown) {
@@ -68,6 +74,11 @@ export default function WardenStudentsPage() {
   };
 
   const vacantRooms = rooms.filter((r) => !students.some((s) => s.roomId === r.id));
+  const vacantForPicker = useMemo(() => {
+    if (vacancyTypeFilter === "ALL") return vacantRooms;
+    return vacantRooms.filter((r) => r.roomType === vacancyTypeFilter);
+  }, [vacantRooms, vacancyTypeFilter]);
+
   if (loading) return <Spinner />;
 
   return (
@@ -108,8 +119,11 @@ export default function WardenStudentsPage() {
                   <Td className="text-slate-500 text-sm">{s.phone}</Td>
                   <Td>
                     {room ? (
-                      <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
-                        Room {room.roomNumber}
+                      <span className="inline-flex flex-col gap-0.5">
+                        <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full w-fit">
+                          Room {room.roomNumber}
+                        </span>
+                        <span className="text-[10px] text-slate-500">{formatRoomType(room.roomType)}</span>
                       </span>
                     ) : (
                       <span className="text-xs text-slate-400">Not assigned</span>
@@ -146,7 +160,33 @@ export default function WardenStudentsPage() {
             <FormField label="Admission Date" required>
               <Input type="date" value={form.admissionDate} onChange={(e) => setForm({ ...form, admissionDate: e.target.value })} required />
             </FormField>
-            <p className="text-xs text-slate-400">A room will be automatically assigned from available rooms in {user?.hallName}.</p>
+            <FormField label="Filter vacancies by type">
+              <Select
+                value={vacancyTypeFilter}
+                onChange={(e) => {
+                  setVacancyTypeFilter(e.target.value as typeof vacancyTypeFilter);
+                  setAdmitRoomId("");
+                }}
+              >
+                <option value="ALL">All types</option>
+                <option value="SINGLE">Single only</option>
+                <option value="TWIN_SHARING">Twin sharing only</option>
+              </Select>
+            </FormField>
+            <FormField label="Room assignment">
+              <Select value={admitRoomId} onChange={(e) => setAdmitRoomId(e.target.value)}>
+                <option value="">Auto — first vacant room (after filter)</option>
+                {vacantForPicker.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.roomNumber} · {formatRoomType(r.roomType)} · {formatCurrency(r.rent)}/mo
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+            <p className="text-xs text-slate-400">
+              Single vs twin sharing sets category and rent; each room still holds one student in this system. Students can also pick a room from{" "}
+              <span className="font-medium text-slate-600">Choose room</span> on their dashboard.
+            </p>
             <div className="flex justify-end gap-2 pt-2">
               <Btn variant="secondary" onClick={() => setShowAdmit(false)}>Cancel</Btn>
               <Btn type="submit" disabled={submitting}>{submitting ? "Admitting…" : "Admit Student"}</Btn>

@@ -1,7 +1,12 @@
 package com.hms.service.impl;
 
+import com.hms.entity.Room;
 import com.hms.entity.Student;
+import com.hms.entity.User;
+import com.hms.enums.RoomType;
+import com.hms.enums.UserRole;
 import com.hms.exception.ResourceNotFoundException;
+import com.hms.repository.RoomRepository;
 import com.hms.repository.StudentRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +27,7 @@ import static org.mockito.Mockito.*;
 class StudentServiceImplTest {
 
     @Mock private StudentRepository repo;
+    @Mock private RoomRepository roomRepo;
     @InjectMocks private StudentServiceImpl service;
 
     private Student makeStudent(Long id, String name) {
@@ -89,5 +96,34 @@ class StudentServiceImplTest {
         when(repo.findByHallId(1L)).thenReturn(List.of(makeStudent(1L, "A")));
         List<Student> result = service.getByHallId(1L);
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @DisplayName("selectRoom: warden frees old room and occupies new")
+    void selectRoom_wardenMovesStudent() {
+        User warden = User.builder().role(UserRole.WARDEN).hallId(1L).build();
+        Student s = new Student(1L, "A", "Addr", "123", null, null, null, null, 1L, 2L);
+        Room oldRoom = new Room(2L, "101", RoomType.SINGLE, 1000, 1L, true);
+        Room newRoom = new Room(3L, "102", RoomType.TWIN_SHARING, 800, 1L, false);
+
+        when(repo.findById(1L)).thenReturn(Optional.of(s));
+        when(roomRepo.findById(3L)).thenReturn(Optional.of(newRoom));
+        when(roomRepo.findById(2L)).thenReturn(Optional.of(oldRoom));
+        when(repo.save(any(Student.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(roomRepo.save(any(Room.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Student out = service.selectRoom(1L, 3L, warden);
+        assertEquals(3L, out.getRoomId());
+        verify(roomRepo).save(argThat(r -> r.getId().equals(2L) && !r.isOccupied()));
+        verify(roomRepo).save(argThat(r -> r.getId().equals(3L) && r.isOccupied()));
+    }
+
+    @Test
+    @DisplayName("selectRoom: student may only select own record")
+    void selectRoom_studentWrongIdDenied() {
+        User studentUser = User.builder().role(UserRole.STUDENT).studentId(1L).build();
+        Student s = new Student(2L, "A", "Addr", "123", null, null, null, null, 1L, null);
+        when(repo.findById(2L)).thenReturn(Optional.of(s));
+        assertThrows(AccessDeniedException.class, () -> service.selectRoom(2L, 3L, studentUser));
     }
 }

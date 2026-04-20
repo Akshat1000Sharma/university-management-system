@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CreditCard, MessageSquare, Wallet, Building2, User, Phone, Hash } from "lucide-react";
+import { CreditCard, MessageSquare, Wallet, User, DoorOpen } from "lucide-react";
 import { useAuth } from "../../lib/auth";
 import { api } from "../../lib/api";
-import { formatCurrency, currentMonth, currentYear } from "../../lib/utils";
+import { formatCurrency, currentMonth, currentYear, formatRoomType } from "../../lib/utils";
 import { PageHeader, StatCard, Card, Spinner, ErrorMsg } from "../../components/ui";
-import type { Student, StudentDues } from "../../lib/types";
+import type { Student, StudentDues, Room } from "../../lib/types";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
   const [student, setStudent] = useState<Student | null>(null);
+  const [myRoom, setMyRoom] = useState<Room | null>(null);
   const [dues, setDues] = useState<StudentDues | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,12 +21,15 @@ export default function StudentDashboard() {
     if (!user?.studentId) { setLoading(false); return; }
     (async () => {
       try {
-        const [s, d] = await Promise.all([
+        const [s, d, hallRooms] = await Promise.all([
           api.students.getById(user.studentId!),
           api.business.getStudentDues(user.studentId!, currentMonth(), currentYear()),
+          user.hallId ? api.rooms.getByHall(user.hallId) : Promise.resolve([] as Room[]),
         ]);
         setStudent(s);
         setDues(d);
+        const r = s.roomId ? hallRooms.find((x) => x.id === s.roomId) ?? null : null;
+        setMyRoom(r);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load data");
       } finally {
@@ -63,7 +67,20 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Room</p>
-                <p className="font-semibold text-slate-900">{student.roomId ? `Room #${student.roomId}` : "Not assigned"}</p>
+                <p className="font-semibold text-slate-900">
+                  {myRoom ? (
+                    <>
+                      {myRoom.roomNumber}
+                      <span className="text-slate-500 font-normal text-sm ml-1">
+                        ({formatRoomType(myRoom.roomType)})
+                      </span>
+                    </>
+                  ) : student.roomId ? (
+                    `Room #${student.roomId}`
+                  ) : (
+                    "Not assigned — use Choose room"
+                  )}
+                </p>
               </div>
             </div>
           </div>
@@ -79,7 +96,12 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link href="/student/room" className="bg-white border border-slate-200 rounded-xl p-5 hover:border-violet-300 hover:shadow-sm transition-all group">
+          <DoorOpen className="w-6 h-6 text-violet-600 mb-3" />
+          <p className="font-semibold text-slate-900 group-hover:text-violet-700">Choose room</p>
+          <p className="text-sm text-slate-500 mt-1">Pick a single or twin-sharing vacancy in your hall</p>
+        </Link>
         <Link href="/student/dues" className="bg-white border border-slate-200 rounded-xl p-5 hover:border-indigo-300 hover:shadow-sm transition-all group">
           <CreditCard className="w-6 h-6 text-indigo-600 mb-3" />
           <p className="font-semibold text-slate-900 group-hover:text-indigo-700">View My Dues</p>
