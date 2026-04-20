@@ -8,11 +8,11 @@ import com.hms.enums.RoomType;
 import com.hms.enums.StaffType;
 import com.hms.exception.ResourceNotFoundException;
 import com.hms.repository.*;
+import com.hms.service.RoomOccupancyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -36,7 +36,9 @@ class BusinessServiceImplTest {
     @Mock private StaffLeaveRepository staffLeaveRepo;
     @Mock private HallGrantRepository hallGrantRepo;
     @Mock private ExpenditureRepository expenditureRepo;
-    @InjectMocks private BusinessServiceImpl service;
+
+    private BusinessServiceImpl service;
+    private RoomOccupancyService roomOccupancyService;
 
     private Room testRoom;
     private Hall testHall;
@@ -47,6 +49,11 @@ class BusinessServiceImplTest {
         testHall = new Hall(1L, "Tagore Hall", false, 500.0);
         testRoom = new Room(1L, "101", RoomType.SINGLE, 3000.0, 1L, false);
         testStudent = new Student(1L, "John Doe", "Address", "1234567890", null, null, null, null, 1L, 1L);
+        roomOccupancyService = new RoomOccupancyService(studentRepo, roomRepo);
+        service = new BusinessServiceImpl(
+                studentRepo, roomRepo, hallRepo, messChargeRepo, messManagerRepo,
+                complaintRepo, staffRepo, staffLeaveRepo, hallGrantRepo, expenditureRepo,
+                roomOccupancyService);
     }
 
     // --- admitStudent ---
@@ -56,12 +63,13 @@ class BusinessServiceImplTest {
     void admitStudent_success() {
         AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 1L);
         when(roomRepo.findById(1L)).thenReturn(Optional.of(testRoom));
+        when(studentRepo.countByRoomId(1L)).thenReturn(0L, 1L);
         when(studentRepo.save(any(Student.class))).thenAnswer(inv -> {
             Student s = inv.getArgument(0);
             s.setId(1L);
             return s;
         });
-        when(roomRepo.save(any(Room.class))).thenReturn(testRoom);
+        when(roomRepo.save(any(Room.class))).thenAnswer(inv -> inv.getArgument(0));
         when(hallRepo.findById(1L)).thenReturn(Optional.of(testHall));
 
         StudentDueResponse response = service.admitStudent(request);
@@ -86,14 +94,14 @@ class BusinessServiceImplTest {
     }
 
     @Test
-    @DisplayName("admitStudent: occupied room should throw RuntimeException")
+    @DisplayName("admitStudent: full room should throw RuntimeException")
     void admitStudent_roomOccupied() {
-        testRoom.setOccupied(true);
         AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 1L);
         when(roomRepo.findById(1L)).thenReturn(Optional.of(testRoom));
+        when(studentRepo.countByRoomId(1L)).thenReturn(1L);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> service.admitStudent(request));
-        assertEquals("Room is already occupied", ex.getMessage());
+        assertEquals("Room has no vacant beds", ex.getMessage());
     }
 
     @Test
@@ -102,12 +110,13 @@ class BusinessServiceImplTest {
         AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, null);
         when(hallRepo.findById(1L)).thenReturn(Optional.of(testHall));
         when(roomRepo.findByHallId(1L)).thenReturn(List.of(testRoom));
+        when(studentRepo.countByRoomId(1L)).thenReturn(0L, 1L);
         when(studentRepo.save(any(Student.class))).thenAnswer(inv -> {
             Student s = inv.getArgument(0);
             s.setId(1L);
             return s;
         });
-        when(roomRepo.save(any(Room.class))).thenReturn(testRoom);
+        when(roomRepo.save(any(Room.class))).thenAnswer(inv -> inv.getArgument(0));
 
         StudentDueResponse response = service.admitStudent(request);
 
@@ -233,13 +242,16 @@ class BusinessServiceImplTest {
         Room r2 = new Room(2L, "102", RoomType.SINGLE, 3000, 1L, false);
         Room r3 = new Room(3L, "103", RoomType.TWIN_SHARING, 2000, 1L, true);
         when(roomRepo.findByHallId(1L)).thenReturn(List.of(r1, r2, r3));
+        when(studentRepo.countByRoomId(1L)).thenReturn(1L);
+        when(studentRepo.countByRoomId(2L)).thenReturn(0L);
+        when(studentRepo.countByRoomId(3L)).thenReturn(2L);
 
         OccupancyResponse response = service.getHallOccupancy(1L);
 
         assertEquals(3, response.getTotalRooms());
         assertEquals(2, response.getOccupiedRooms());
         assertEquals(1, response.getVacantRooms());
-        assertEquals(66.67, response.getOccupancyPercent());
+        assertEquals(75.0, response.getOccupancyPercent());
     }
 
     @Test

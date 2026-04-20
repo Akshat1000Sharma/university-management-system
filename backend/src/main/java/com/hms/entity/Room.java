@@ -6,7 +6,8 @@ import lombok.*;
 
 @Entity
 @Table(name = "rooms")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @NoArgsConstructor
+@AllArgsConstructor(exclude = "occupantCount")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,5 +20,14 @@ public class Room {
 
     private double rent;
     private Long hallId;
+    /** True when occupant count &gt;= bed capacity (single: 1, twin: 2). */
     private boolean isOccupied;
+
+    /** Populated for API responses only; not stored in DB. */
+    @Transient
+    private Integer occupantCount;
+
+    public int getBedCapacity() {
+        return roomType == RoomType.TWIN_SHARING ? 2 : 1;
+    }
 }

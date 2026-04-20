@@ -21,14 +21,14 @@ export default function StudentDashboard() {
     if (!user?.studentId) { setLoading(false); return; }
     (async () => {
       try {
-        const [s, d, hallRooms] = await Promise.all([
+        const [s, d, allRooms] = await Promise.all([
           api.students.getById(user.studentId!),
           api.business.getStudentDues(user.studentId!, currentMonth(), currentYear()),
-          user.hallId ? api.rooms.getByHall(user.hallId) : Promise.resolve([] as Room[]),
+          api.rooms.getAll(),
         ]);
         setStudent(s);
         setDues(d);
-        const r = s.roomId ? hallRooms.find((x) => x.id === s.roomId) ?? null : null;
+        const r = s.roomId ? allRooms.find((x) => x.id === s.roomId) ?? null : null;
         setMyRoom(r);
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Failed to load data");

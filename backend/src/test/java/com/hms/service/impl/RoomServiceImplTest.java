@@ -4,6 +4,7 @@ import com.hms.entity.Room;
 import com.hms.enums.RoomType;
 import com.hms.exception.ResourceNotFoundException;
 import com.hms.repository.RoomRepository;
+import com.hms.service.RoomOccupancyService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.*;
 class RoomServiceImplTest {
 
     @Mock private RoomRepository repo;
+    @Mock private RoomOccupancyService occupancyService;
     @InjectMocks private RoomServiceImpl service;
 
     private Room makeRoom(Long id) {
@@ -34,6 +36,8 @@ class RoomServiceImplTest {
         Room r = makeRoom(null);
         when(repo.save(r)).thenReturn(makeRoom(1L));
         assertEquals(1L, service.create(r).getId());
+        verify(occupancyService).syncOccupiedFlag(1L);
+        verify(occupancyService).enrich(any(Room.class));
     }
 
     @Test
@@ -41,6 +45,7 @@ class RoomServiceImplTest {
     void getAll() {
         when(repo.findAll()).thenReturn(List.of(makeRoom(1L), makeRoom(2L)));
         assertEquals(2, service.getAll().size());
+        verify(occupancyService, times(2)).enrich(any(Room.class));
     }
 
     @Test
@@ -48,6 +53,7 @@ class RoomServiceImplTest {
     void getById_found() {
         when(repo.findById(1L)).thenReturn(Optional.of(makeRoom(1L)));
         assertEquals("101", service.getById(1L).getRoomNumber());
+        verify(occupancyService).enrich(any(Room.class));
     }
 
     @Test
@@ -68,6 +74,8 @@ class RoomServiceImplTest {
         service.update(1L, updated);
         verify(repo).save(argThat(r ->
                 "102".equals(r.getRoomNumber()) && r.getRoomType() == RoomType.TWIN_SHARING && r.getRent() == 2000.0));
+        verify(occupancyService).syncOccupiedFlag(1L);
+        verify(occupancyService).enrich(any(Room.class));
     }
 
     @Test
@@ -82,5 +90,6 @@ class RoomServiceImplTest {
     void getByHallId() {
         when(repo.findByHallId(1L)).thenReturn(List.of(makeRoom(1L)));
         assertEquals(1, service.getByHallId(1L).size());
+        verify(occupancyService).enrich(any(Room.class));
     }
 }

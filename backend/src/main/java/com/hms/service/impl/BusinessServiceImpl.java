@@ -4,8 +4,10 @@ import com.hms.dto.*;
 import com.hms.entity.*;
 import com.hms.enums.ComplaintStatus;
 import com.hms.exception.ResourceNotFoundException;
+import com.hms.enums.RoomType;
 import com.hms.repository.*;
 import com.hms.service.BusinessService;
+import com.hms.service.RoomOccupancyService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,6 +28,7 @@ public class BusinessServiceImpl implements BusinessService {
     private final StaffLeaveRepository staffLeaveRepo;
     private final HallGrantRepository hallGrantRepo;
     private final ExpenditureRepository expenditureRepo;
+    private final RoomOccupancyService roomOccupancyService;
 
     public BusinessServiceImpl(StudentRepository studentRepo,
                                RoomRepository roomRepo,
@@ -36,7 +39,8 @@ public class BusinessServiceImpl implements BusinessService {
                                StaffRepository staffRepo,
                                StaffLeaveRepository staffLeaveRepo,
                                HallGrantRepository hallGrantRepo,
-                               ExpenditureRepository expenditureRepo) {
+                               ExpenditureRepository expenditureRepo,
+                               RoomOccupancyService roomOccupancyService) {
         this.studentRepo = studentRepo;
         this.roomRepo = roomRepo;
         this.hallRepo = hallRepo;
@@ -47,14 +51,15 @@ public class BusinessServiceImpl implements BusinessService {
         this.staffLeaveRepo = staffLeaveRepo;
         this.hallGrantRepo = hallGrantRepo;
         this.expenditureRepo = expenditureRepo;
+        this.roomOccupancyService = roomOccupancyService;
     }
 
     @Override
     public StudentDueResponse admitStudent(AdmitStudentRequest request) {
         Room room = resolveRoomForAdmission(request);
 
-        if (room.isOccupied()) {
-            throw new RuntimeException("Room is already occupied");
+        if (!roomOccupancyService.hasVacancy(room)) {
+            throw new RuntimeException("Room has no vacant beds");
         }
 
         Long hallId = request.getHallId() != null ? request.getHallId() : room.getHallId();
@@ -75,9 +80,7 @@ public class BusinessServiceImpl implements BusinessService {
         student.setRoomId(room.getId());
         student = studentRepo.save(student);
 
-        // Mark room occupied
-        room.setOccupied(true);
-        roomRepo.save(room);
+        roomOccupancyService.syncOccupiedFlag(room.getId());
 
         Hall hall = hallRepo.findById(hallId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hall not found"));
@@ -116,7 +119,7 @@ public class BusinessServiceImpl implements BusinessService {
                 .orElseThrow(() -> new ResourceNotFoundException("Hall not found"));
 
         return roomRepo.findByHallId(hallId).stream()
-                .filter(r -> !r.isOccupied())
+                .filter(roomOccupancyService::hasVacancy)
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("No vacant room available in this hall"));
     }
@@ -214,17 +217,23 @@ public class BusinessServiceImpl implements BusinessService {
 
         List<Room> rooms = roomRepo.findByHallId(hallId);
         int total = rooms.size();
-        int occupied = (int) rooms.stream().filter(Room::isOccupied).count();
-        int vacant = total - occupied;
-        double percent = total == 0 ? 0 : (occupied * 100.0 / total);
+        int totalBeds = rooms.stream().mapToInt(r -> r.getRoomType() == RoomType.TWIN_SHARING ? 2 : 1).sum();
+        long totalAssigned = rooms.stream().mapToLong(r -> roomOccupancyService.countOccupants(r.getId())).sum();
+        int roomsWithResidents = (int) rooms.stream()
+                .filter(r -> roomOccupancyService.countOccupants(r.getId()) > 0)
+                .count();
+        int roomsWithVacancy = (int) rooms.stream()
+                .filter(roomOccupancyService::hasVacancy)
+                .count();
+        double percent = totalBeds == 0 ? 0 : Math.round(totalAssigned * 10000.0 / totalBeds) / 100.0;
 
         OccupancyResponse response = new OccupancyResponse();
         response.setHallId(hallId);
         response.setHallName(hall.getName());
         response.setTotalRooms(total);
-        response.setOccupiedRooms(occupied);
-        response.setVacantRooms(vacant);
-        response.setOccupancyPercent(Math.round(percent * 100.0) / 100.0);
+        response.setOccupiedRooms(roomsWithResidents);
+        response.setVacantRooms(roomsWithVacancy);
+        response.setOccupancyPercent(percent);
         return response;
     }
 
