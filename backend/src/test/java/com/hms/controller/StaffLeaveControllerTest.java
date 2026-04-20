@@ -3,6 +3,7 @@ package com.hms.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hms.entity.StaffLeave;
+import com.hms.enums.LeaveType;
 import com.hms.exception.GlobalExceptionHandler;
 import com.hms.exception.ResourceNotFoundException;
 import com.hms.service.StaffLeaveService;
@@ -40,7 +41,7 @@ class StaffLeaveControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler()).build();
     }
 
-    private StaffLeave make(Long id) { return new StaffLeave(id, 1L, LocalDate.of(2026, 3, 15)); }
+    private StaffLeave make(Long id) { return new StaffLeave(id, 1L, LocalDate.of(2026, 3, 15), LeaveType.CASUAL); }
 
     @Test @DisplayName("POST /api/staff-leaves: creates")
     void create() throws Exception {

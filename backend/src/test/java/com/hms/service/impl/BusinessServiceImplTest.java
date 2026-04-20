@@ -209,8 +209,8 @@ class BusinessServiceImplTest {
         Staff staff = new Staff(1L, "Ramesh", StaffType.ATTENDANT, 500.0, 1L);
         when(staffRepo.findByHallId(1L)).thenReturn(List.of(staff));
 
-        StaffLeave leave1 = new StaffLeave(1L, 1L, LocalDate.of(2026, 3, 5));
-        StaffLeave leave2 = new StaffLeave(2L, 1L, LocalDate.of(2026, 3, 10));
+        StaffLeave leave1 = new StaffLeave(1L, 1L, LocalDate.of(2026, 3, 5), com.hms.enums.LeaveType.CASUAL);
+        StaffLeave leave2 = new StaffLeave(2L, 1L, LocalDate.of(2026, 3, 10), com.hms.enums.LeaveType.CASUAL);
         when(staffLeaveRepo.findByStaffIdAndLeaveDateBetween(eq(1L), any(), any()))
                 .thenReturn(List.of(leave1, leave2));
 

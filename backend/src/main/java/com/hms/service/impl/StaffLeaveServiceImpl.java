@@ -25,6 +25,9 @@ public class StaffLeaveServiceImpl implements StaffLeaveService {
         StaffLeave existing = getById(id);
         existing.setStaffId(sl.getStaffId());
         existing.setLeaveDate(sl.getLeaveDate());
+        if (sl.getLeaveType() != null) {
+            existing.setLeaveType(sl.getLeaveType());
+        }
         return repo.save(existing);
     }
     public void delete(Long id) { repo.deleteById(id); }

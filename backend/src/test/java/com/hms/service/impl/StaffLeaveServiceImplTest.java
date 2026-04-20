@@ -1,6 +1,7 @@
 package com.hms.service.impl;
 
 import com.hms.entity.StaffLeave;
+import com.hms.enums.LeaveType;
 import com.hms.exception.ResourceNotFoundException;
 import com.hms.repository.StaffLeaveRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ class StaffLeaveServiceImplTest {
     @InjectMocks private StaffLeaveServiceImpl service;
 
     private StaffLeave make(Long id) {
-        return new StaffLeave(id, 1L, LocalDate.of(2026, 3, 15));
+        return new StaffLeave(id, 1L, LocalDate.of(2026, 3, 15), LeaveType.CASUAL);
     }
 
     @Test @DisplayName("create: saves and returns")
@@ -55,7 +56,7 @@ class StaffLeaveServiceImplTest {
     @Test @DisplayName("update: updates fields")
     void update() {
         StaffLeave existing = make(1L);
-        StaffLeave updated = new StaffLeave(1L, 2L, LocalDate.of(2026, 4, 1));
+        StaffLeave updated = new StaffLeave(1L, 2L, LocalDate.of(2026, 4, 1), LeaveType.EARNED);
         when(repo.findById(1L)).thenReturn(Optional.of(existing));
         when(repo.save(any())).thenReturn(existing);
 

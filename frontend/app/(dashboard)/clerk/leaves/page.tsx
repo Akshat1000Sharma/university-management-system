@@ -11,7 +11,19 @@ import {
 } from "../../../components/ui";
 import type { Staff, StaffLeave } from "../../../lib/types";
 
-const LEAVE_TYPES = ["CASUAL", "EARNED", "MEDICAL", "SPECIAL"];
+const LEAVE_TYPES = ["CASUAL", "EARNED", "MEDICAL", "SPECIAL"] as const;
+
+const LEAVE_TYPE_LABELS: Record<string, string> = {
+  CASUAL: "Casual",
+  EARNED: "Earned",
+  MEDICAL: "Medical",
+  SPECIAL: "Special",
+};
+
+function formatLeaveType(t: string | undefined) {
+  const key = (t ?? "CASUAL").toUpperCase();
+  return LEAVE_TYPE_LABELS[key] ?? key;
+}
 
 export default function ClerkLeavesPage() {
   const { user } = useAuth();
@@ -127,7 +139,7 @@ export default function ClerkLeavesPage() {
                   <Td className="font-medium">{s ? s.name : `Staff #${l.staffId}`}</Td>
                   <Td>
                     <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
-                      {l.leaveType || "CASUAL"}
+                      {formatLeaveType(l.leaveType)}
                     </span>
                   </Td>
                   <Td>{formatDate(l.leaveDate)}</Td>
@@ -154,7 +166,9 @@ export default function ClerkLeavesPage() {
             </FormField>
             <FormField label="Leave Type" required>
               <Select value={form.leaveType} onChange={(e) => setForm({ ...form, leaveType: e.target.value })}>
-                {LEAVE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {LEAVE_TYPES.map((t) => (
+                  <option key={t} value={t}>{formatLeaveType(t)}</option>
+                ))}
               </Select>
             </FormField>
             <FormField label="Leave Date" required>

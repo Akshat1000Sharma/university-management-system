@@ -1,5 +1,6 @@
 package com.hms.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.hms.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Expenditure {
     private double amount;
     private LocalDate date;
 
+    @JsonAlias("expenseCategory")
     @Enumerated(EnumType.STRING)
     private ExpenseCategory category;
 }

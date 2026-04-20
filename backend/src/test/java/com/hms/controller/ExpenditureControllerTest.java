@@ -53,6 +53,20 @@ class ExpenditureControllerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.description").value("Repair"));
     }
 
+    @Test @DisplayName("POST /api/expenditures: maps expenseCategory JSON to category")
+    void create_mapsExpenseCategoryAlias() throws Exception {
+        when(service.create(any())).thenAnswer(inv -> {
+            Expenditure e = inv.getArgument(0);
+            return new Expenditure(1L, e.getHallId(), e.getDescription(), e.getAmount(), e.getDate(), e.getCategory());
+        });
+        mockMvc.perform(post("/api/expenditures").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"hallId":1,"description":"x","amount":100,"date":"2026-04-20","expenseCategory":"FOOD"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.category").value("FOOD"));
+    }
+
     @Test @DisplayName("GET /api/expenditures: returns all")
     void getAll() throws Exception {
         when(service.getAll()).thenReturn(List.of(make(1L)));

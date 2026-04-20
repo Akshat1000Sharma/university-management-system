@@ -1,5 +1,12 @@
 package com.hms.enums;
 
 public enum ExpenseCategory {
-    REPAIR, NEWSPAPER, MAGAZINE, OTHER
+    FOOD,
+    MAINTENANCE,
+    MAGAZINE,
+    NEWSPAPER,
+    OTHER,
+    REPAIR,
+    STAFF,
+    UTILITIES
 }
