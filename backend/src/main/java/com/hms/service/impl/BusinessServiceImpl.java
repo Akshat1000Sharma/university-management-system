@@ -51,12 +51,15 @@ public class BusinessServiceImpl implements BusinessService {
 
     @Override
     public StudentDueResponse admitStudent(AdmitStudentRequest request) {
-        // Check room exists
-        Room room = roomRepo.findById(request.getRoomId())
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+        Room room = resolveRoomForAdmission(request);
 
         if (room.isOccupied()) {
             throw new RuntimeException("Room is already occupied");
+        }
+
+        Long hallId = request.getHallId() != null ? request.getHallId() : room.getHallId();
+        if (hallId == null) {
+            throw new IllegalArgumentException("hallId is required");
         }
 
         // Create student
@@ -65,15 +68,18 @@ public class BusinessServiceImpl implements BusinessService {
         student.setAddress(request.getAddress());
         student.setPhone(request.getPhone());
         student.setPhoto(request.getPhoto());
-        student.setHallId(request.getHallId());
-        student.setRoomId(request.getRoomId());
+        student.setEmail(request.getEmail());
+        student.setRegistrationNumber(request.getRegistrationNumber());
+        student.setAdmissionDate(request.getAdmissionDate());
+        student.setHallId(hallId);
+        student.setRoomId(room.getId());
         student = studentRepo.save(student);
 
         // Mark room occupied
         room.setOccupied(true);
         roomRepo.save(room);
 
-        Hall hall = hallRepo.findById(request.getHallId())
+        Hall hall = hallRepo.findById(hallId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hall not found"));
 
         StudentDueResponse response = new StudentDueResponse();
@@ -84,6 +90,35 @@ public class BusinessServiceImpl implements BusinessService {
         response.setAmenityCharge(hall.getAmenityCharge());
         response.setTotalDue(room.getRent() + hall.getAmenityCharge());
         return response;
+    }
+
+    /**
+     * Resolves the room for admission: explicit {@link AdmitStudentRequest#getRoomId()}, or the first
+     * vacant room in {@link AdmitStudentRequest#getHallId()} when room id is omitted.
+     */
+    private Room resolveRoomForAdmission(AdmitStudentRequest request) {
+        Long roomId = request.getRoomId();
+        if (roomId != null) {
+            Room room = roomRepo.findById(roomId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+            if (request.getHallId() != null && !request.getHallId().equals(room.getHallId())) {
+                throw new IllegalArgumentException("Room does not belong to the specified hall");
+            }
+            return room;
+        }
+
+        Long hallId = request.getHallId();
+        if (hallId == null) {
+            throw new IllegalArgumentException("hallId is required when roomId is not specified");
+        }
+
+        hallRepo.findById(hallId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hall not found"));
+
+        return roomRepo.findByHallId(hallId).stream()
+                .filter(r -> !r.isOccupied())
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No vacant room available in this hall"));
     }
 
     @Override

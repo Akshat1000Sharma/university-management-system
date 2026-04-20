@@ -46,7 +46,7 @@ class BusinessServiceImplTest {
     void setUp() {
         testHall = new Hall(1L, "Tagore Hall", false, 500.0);
         testRoom = new Room(1L, "101", RoomType.SINGLE, 3000.0, 1L, false);
-        testStudent = new Student(1L, "John Doe", "Address", "1234567890", null, 1L, 1L);
+        testStudent = new Student(1L, "John Doe", "Address", "1234567890", null, null, null, null, 1L, 1L);
     }
 
     // --- admitStudent ---
@@ -54,7 +54,7 @@ class BusinessServiceImplTest {
     @Test
     @DisplayName("admitStudent: should create student and mark room occupied")
     void admitStudent_success() {
-        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, 1L, 1L);
+        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 1L);
         when(roomRepo.findById(1L)).thenReturn(Optional.of(testRoom));
         when(studentRepo.save(any(Student.class))).thenAnswer(inv -> {
             Student s = inv.getArgument(0);
@@ -79,7 +79,7 @@ class BusinessServiceImplTest {
     @Test
     @DisplayName("admitStudent: non-existent room should throw ResourceNotFoundException")
     void admitStudent_roomNotFound() {
-        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, 1L, 99L);
+        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 99L);
         when(roomRepo.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.admitStudent(request));
@@ -89,11 +89,33 @@ class BusinessServiceImplTest {
     @DisplayName("admitStudent: occupied room should throw RuntimeException")
     void admitStudent_roomOccupied() {
         testRoom.setOccupied(true);
-        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, 1L, 1L);
+        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 1L);
         when(roomRepo.findById(1L)).thenReturn(Optional.of(testRoom));
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> service.admitStudent(request));
         assertEquals("Room is already occupied", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("admitStudent: should pick first vacant room when roomId is null")
+    void admitStudent_autoAssignsVacantRoom() {
+        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, null);
+        when(hallRepo.findById(1L)).thenReturn(Optional.of(testHall));
+        when(roomRepo.findByHallId(1L)).thenReturn(List.of(testRoom));
+        when(studentRepo.save(any(Student.class))).thenAnswer(inv -> {
+            Student s = inv.getArgument(0);
+            s.setId(1L);
+            return s;
+        });
+        when(roomRepo.save(any(Room.class))).thenReturn(testRoom);
+
+        StudentDueResponse response = service.admitStudent(request);
+
+        assertNotNull(response);
+        assertEquals(1L, response.getStudentId());
+        verify(roomRepo, never()).findById(any());
+        verify(roomRepo).findByHallId(1L);
+        verify(roomRepo).save(argThat(Room::isOccupied));
     }
 
     // --- getStudentDues ---

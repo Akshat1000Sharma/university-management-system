@@ -41,7 +41,7 @@ class StudentControllerTest {
     }
 
     private Student makeStudent(Long id) {
-        return new Student(id, "Alice", "Addr", "999", null, 1L, 1L);
+        return new Student(id, "Alice", "Addr", "999", null, null, null, null, 1L, 1L);
     }
 
     @Test

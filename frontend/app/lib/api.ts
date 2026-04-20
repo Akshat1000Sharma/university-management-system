@@ -191,7 +191,7 @@ export const api = {
     admitStudent: (data: {
       name: string; email: string; phone: string;
       registrationNumber: string; hallId: number; admissionDate: string;
-    }) => request<Student>("/business/admit", { method: "POST", body: JSON.stringify(data) }),
+    }) => request<StudentDues>("/business/admit", { method: "POST", body: JSON.stringify(data) }),
 
     getStudentDues: (studentId: number, month: number, year: number) =>
       request<StudentDues>(`/business/student/${studentId}/dues?month=${month}&year=${year}`),

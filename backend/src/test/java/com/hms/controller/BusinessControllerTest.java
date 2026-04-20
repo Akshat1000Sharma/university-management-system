@@ -45,7 +45,7 @@ class BusinessControllerTest {
         StudentDueResponse response = new StudentDueResponse(1L, "John", 0, 3000, 500, 3500);
         when(service.admitStudent(any())).thenReturn(response);
 
-        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, 1L, 1L);
+        AdmitStudentRequest request = new AdmitStudentRequest("John", "Addr", "123", null, null, null, null, 1L, 1L);
         mockMvc.perform(post("/api/business/admit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))

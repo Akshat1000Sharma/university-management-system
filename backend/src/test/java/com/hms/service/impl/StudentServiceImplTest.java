@@ -24,7 +24,7 @@ class StudentServiceImplTest {
     @InjectMocks private StudentServiceImpl service;
 
     private Student makeStudent(Long id, String name) {
-        return new Student(id, name, "Addr", "9999", null, 1L, 1L);
+        return new Student(id, name, "Addr", "9999", null, null, null, null, 1L, 1L);
     }
 
     @Test
